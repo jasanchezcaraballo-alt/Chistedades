@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chistedades</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2A1B4D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icono-512.png">
+<style>
+
+  :root{
+    --paper:#2A1B4D;
+    --paper-line:#3A2668;
+    --ink:#F5F0FF;
+    --ink-soft:#B7A8DC;
+    --yellow:#FEC403;
+    --coral:#FF6B5B;
+    --blue:#4FC3E8;
+    --green:#3DD9B0;
+    --purple:#FF5FA8;
+    --orange:#FEC403;
+    --card:#3B2A6B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background:
+      radial-gradient(1000px 520px at 50% -140px, #6B3FA8 0%, rgba(107,63,168,0) 68%),
+      linear-gradient(175deg, #34215F 0%, #2A1B4D 45%, #1E1338 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    min-height:100vh;
+    padding:0 0 40px;
+  }
+
+  header{
+    padding:26px 20px 14px;
+    text-align:center;
+  }
+  .app-icon{
+    width:78px;height:78px;
+    margin:0 auto 12px;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,0.45);
+  }
+  .app-icon img{width:100%;height:100%;display:block;object-fit:cover;}
+  header h1{
+    font-weight:700;
+    font-size:20px;
+    margin:0;
+    color:var(--ink);
+    letter-spacing:0.2px;
+  }
+  header h1 .logo{
+    display:inline-block;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-size:34px;
+    font-weight:700;
+    color:var(--ink);
+    line-height:1.15;
+    margin-bottom:8px;
+    padding-bottom:6px;
+    border-bottom:4px solid var(--orange);
+  }
+  header h1 .sub{display:block;}
+  header .accent{color:var(--coral);}
+  main{max-width:480px;margin:0 auto;padding:0 18px;}
+
+  section.block{margin-top:22px;}
+  .label{
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800;
+    font-size:28px;
+    color:#FFFFFF;
+    margin:0 0 14px 0;
+    letter-spacing:-0.3px;
+    padding-bottom:8px;
+    border-bottom:3px solid var(--orange);
+    white-space:nowrap;
+  }
+
+  /* Age selector: ruler / growth-chart style */
+  #ages{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+  }
+  .age-btn{
+    position:relative;
+    background:var(--card);
+    border:2px solid rgba(255,255,255,0.38);
+    border-radius:12px;
+    padding:14px 4px 12px;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800;
+    color:var(--ink);
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s ease;
+  }
+  .age-btn::before{
+    content:"";
+    position:absolute;
+    top:-7px;left:50%;
+    width:2px;height:10px;
+    background:rgba(255,255,255,0.30);
+    transform:translateX(-50%);
+  }
+  .age-btn .yrs{display:block;font-size:19px;font-weight:800;letter-spacing:-0.3px;}
+  .age-btn .desc{display:block;font-size:11px;color:var(--ink-soft);font-weight:700;margin-top:3px;}
+  .age-btn.active{
+    background:var(--yellow);
+    color:#2A1B4D;
+    transform:translateY(-3px);
+  }
+  .age-btn.active .desc{color:#6B5510;}
+
+  .age-btn.locked{
+    background:var(--paper-line);
+    color:var(--ink-soft);
+    border-style:dashed;
+    opacity:0.85;
+  }
+  .age-btn.locked .desc{color:var(--ink-soft);}
+  #lock-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    padding:8px 12px;
+    background:var(--card);
+    border:1.5px solid rgba(255,255,255,0.12);
+    border-radius:10px;
+  }
+  .lock-txt{font-size:13px;font-weight:700;color:var(--ink-soft);}
+  .lock-btn{
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size:13px;
+    font-weight:800;
+    padding:6px 12px;
+    border-radius:8px;
+    border:1.5px solid rgba(255,255,255,0.22);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+
+  /* Category chips */
+  #cats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+  .cat-chip{
+    background:var(--card);
+    border:2px solid rgba(255,255,255,0.38);
+    border-radius:12px;
+    padding:13px 13px;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    color:#FFFFFF;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .cat-chip .ico{
+    font-size:17px;
+    width:22px;
+    text-align:center;
+    flex-shrink:0;
+  }
+  .cat-chip .name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .cat-chip.todas{grid-column:1 / -1;justify-content:center;}
+  .cat-chip.active{
+    background:var(--orange);
+    color:#2A1B4D;
+    border-color:var(--orange);
+  }
+
+  /* Joke card */
+  #joke-wrap{margin-top:26px;}
+  .joke-card{
+    background:var(--card);
+    border:3px solid var(--orange);
+    border-radius:16px;
+    padding:20px 20px 20px;
+    position:relative;
+    min-height:150px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.45);
+  }
+  .joke-dismiss{
+    position:absolute;
+    top:10px;right:10px;
+    width:26px;height:26px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.22);
+    background:var(--card);
+    color:var(--ink);
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .joke-dismiss:hover{background:var(--coral);color:#fff;border-color:var(--coral);}
+  .joke-tag{
+    display:inline-block;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size:12px;
+    font-weight:800;
+    background:var(--card);
+    color:#FFFFFF;
+    border:2px solid rgba(255,255,255,0.16);
+    padding:5px 10px;
+    border-radius:8px;
+    margin-bottom:12px;
+  }
+  .joke-tag.mine, .joke-tag.saved{
+    background:var(--orange);
+    color:#2A1B4D;
+    border-color:var(--orange);
+    margin-left:6px;
+  }
+  .joke-setup{
+    font-size:23px;
+    font-weight:700;
+    line-height:1.4;
+    margin:0 0 16px;
+    letter-spacing:-0.2px;
+  }
+  .joke-punchline{
+    font-size:23px;
+    font-weight:800;
+    color:var(--yellow);
+    line-height:1.4;
+    margin:0;
+    letter-spacing:-0.2px;
+  }
+  .card-actions{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .speak-btn{
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background:transparent;
+    color:#FFFFFF;
+    border:2px solid rgba(255,255,255,0.28);
+    border-radius:10px;
+    padding:12px 18px;
+    font-size:17px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .speak-btn.speaking{
+    background:var(--orange);
+    color:#2A1B4D;
+    border-color:var(--orange);
+  }
+  .reveal-btn{
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background:var(--orange);
+    color:#2A1B4D;
+    border:none;
+    border-radius:10px;
+    padding:12px 20px;
+    font-size:17px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .empty-msg{
+    font-size:14px;
+    color:var(--ink-soft);
+    font-weight:600;
+    text-align:center;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+  }
+  .btn{
+    flex:1;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800;
+    font-size:17px;
+    padding:14px 10px;
+    border-radius:10px;
+    border:2px solid rgba(255,255,255,0.16);
+    cursor:pointer;
+    background:var(--card);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn.primary{background:var(--orange);color:#2A1B4D;border-color:var(--orange);}
+  .btn.fav.saved{background:var(--yellow);border-color:var(--yellow);color:#2A1B4D;}
+
+  #fav-section{margin-top:30px;}
+  #fav-list{display:flex;flex-direction:column;gap:8px;}
+  .fav-item{
+    background:var(--card);
+    border:2.5px solid rgba(255,255,255,0.45);
+    border-radius:12px;
+    padding:14px 14px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.35);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .item-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+  }
+  .item-cat{
+    font-size:14px;
+    font-weight:800;
+    color:#FFFFFF;
+    background:rgba(255,255,255,0.10);
+    border:2px solid rgba(255,255,255,0.28);
+    border-radius:8px;
+    padding:4px 10px;
+  }
+  .fav-item .joke-setup{margin:0 0 12px;}
+  .fav-item .joke-punchline{margin:0 0 4px;}
+  .fav-item .card-actions{margin-top:6px;}
+  .fav-item.mine{border-color:var(--orange);}
+  .item-btns{display:flex;gap:4px;flex-shrink:0;}
+  .item-btn{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:20px;
+    line-height:1;
+    padding:2px 6px;
+    border-radius:6px;
+  }
+  .item-btn.edit{color:var(--orange);}
+  .fav-empty{font-size:16px;color:var(--ink-soft);font-style:italic;}
+
+  .add-toggle{
+    width:100%;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight:800;
+    font-size:17px;
+    padding:14px 10px;
+    border-radius:10px;
+    border:2px dashed rgba(255,255,255,0.28);
+    cursor:pointer;
+    background:transparent;
+    color:var(--ink);
+  }
+  #add-form{
+    display:none;
+    margin-top:12px;
+    background:var(--card);
+    border:2px solid rgba(255,255,255,0.16);
+    border-radius:14px;
+    padding:16px;
+  }
+  #add-form.open{display:block;}
+  .field{margin-bottom:12px;}
+  .field label{
+    display:block;
+    font-size:16px;
+    font-weight:800;
+    color:#FFFFFF;
+    margin-bottom:7px;
+  }
+  .field textarea, .field select{
+    width:100%;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size:19px;
+    font-weight:600;
+    line-height:1.4;
+    padding:12px 12px;
+    border-radius:8px;
+    border:2px solid rgba(255,255,255,0.28);
+    background:#241740;
+    color:#FFFFFF;
+    resize:vertical;
+  }
+  .field textarea{min-height:76px;}
+  .field textarea::placeholder{color:var(--ink-soft);font-weight:500;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .form-error{
+    font-size:15px;
+    color:var(--coral);
+    font-weight:800;
+    margin:-4px 0 10px;
+    display:none;
+  }
+  .form-error.show{display:block;}
+  .form-actions{display:flex;gap:10px;margin-top:4px;}
+  .form-actions .btn{padding:13px 10px;font-size:17px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-icon"><img src="data:image/jpeg;base64,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" alt="Icono de la app"></div>
+  <h1><span class="logo">Chistedades</span><span class="sub">Chistes a la medida de cada edad</span></h1>
+</header>
+
+<main>
+  <section class="block">
+    <p class="label">¿Para quién es el chiste?</p>
+    <div id="ages"></div>
+    <div id="lock-bar"></div>
+  </section>
+
+  <section class="block">
+    <p class="label">Categoría</p>
+    <div id="cats"></div>
+  </section>
+
+  <section id="joke-wrap">
+    <p class="label">El chiste</p>
+    <div class="joke-card" id="joke-card"></div>
+    <div class="actions">
+      <button class="btn primary" id="new-joke-btn">🎲 Otro chiste</button>
+      <button class="btn fav" id="fav-btn">♡ Guardar</button>
+    </div>
+  </section>
+
+  <section class="block">
+    <button class="add-toggle" id="add-toggle-btn">✏️ Agregar mi propio chiste</button>
+    <div id="add-form">
+      <div class="field">
+        <label for="f-setup">Planteamiento</label>
+        <textarea id="f-setup" placeholder="¿Qué le dice...?"></textarea>
+      </div>
+      <div class="field">
+        <label for="f-punch">Remate</label>
+        <textarea id="f-punch" placeholder="La respuesta graciosa"></textarea>
+      </div>
+      <p class="form-error" id="form-error">Completa el planteamiento y el remate.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-cat">Categoría</label>
+          <select id="f-cat"></select>
+        </div>
+        <div class="field">
+          <label for="f-age">Edad mínima</label>
+          <select id="f-age"></select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" id="f-save">Guardar chiste</button>
+        <button class="btn" id="f-cancel">Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="mine-section" class="block">
+    <p class="label">Mis chistes</p>
+    <div id="mine-list"></div>
+  </section>
+
+  <section id="fav-section">
+    <p class="label">Chistes guardados</p>
+    <div id="fav-list"></div>
+  </section>
+</main>
+
+<script>
+const JOKES = [
+  {t:"animales", a:4, setup:"¿Qué le dice un pez a otro pez?", punch:"¡Nada nada, nos vemos!"},
+  {t:"animales", a:4, setup:"¿Cómo se llama el pez más famoso?", punch:"¡Pez-cador de estrellas!"},
+  {t:"animales", a:4, setup:"¿Qué hace una abeja en el gimnasio?", punch:"¡Zum-ba!"},
+  {t:"animales", a:8, setup:"¿Por qué los pájaros no usan Facebook?", punch:"Porque ya tienen Twitter."},
+  {t:"animales", a:8, setup:"¿Qué le dijo un gusano a otro gusano?", punch:"Voy arrastrándome de la envidia."},
+  {t:"animales", a:8, setup:"¿Cuál es el animal más antiguo?", punch:"La cebra, porque todavía está en blanco y negro."},
+  {t:"animales", a:13, setup:"Mi perro cree que es programador.", punch:"Se pasa el día ladrando en bucle."},
+  {t:"animales", a:13, setup:"¿Por qué el búho es el ave más segura de sí misma?", punch:"Porque no le importa un búho lo que digan."},
+  {t:"animales", a:18, setup:"Adopté un gato para tener compañía.", punch:"Ahora tengo la compañía de alguien que me ignora profesionalmente."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice un libro a otro libro?", punch:"¡Nos vemos en el índice!"},
+  {t:"escuela", a:4, setup:"¿Cuál es el colmo de un maestro de matemáticas?", punch:"¡No contar con nadie!"},
+  {t:"escuela", a:8, setup:"¿Por qué el libro de matemáticas está triste?", punch:"Porque tiene demasiados problemas."},
+  {t:"escuela", a:8, setup:"Profesor: ¿Por qué llegas tarde?", punch:"Alumno: Había un cartel que decía 'Escuela, despacio'."},
+  {t:"escuela", a:13, setup:"¿Qué le dice un examen a un estudiante?", punch:"Si me estudias, no te sorprendo."},
+  {t:"escuela", a:13, setup:"Mi profesor de historia dice que vivo en el pasado.", punch:"Le dije que eso era imposible de presente."},
+  {t:"escuela", a:18, setup:"Terminé la carrera y me dieron un título.", punch:"Ahora solo me falta que alguien me dé trabajo."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice una papa a otra papa?", punch:"¡Te ves puré-tty bien hoy!"},
+  {t:"comida", a:4, setup:"¿Cómo se despiden dos tomates?", punch:"¡Nos vemos en la ensalada!"},
+  {t:"comida", a:8, setup:"¿Qué hace una fresa cuando ve a otra fresa?", punch:"La saluda con mucha 'fresa-cura'."},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de un panadero?", punch:"Ganarse el pan con el sudor de su frente y aun así estar sin un duro."},
+  {t:"comida", a:13, setup:"Estoy a dieta desde el lunes.", punch:"El lunes que viene, probablemente."},
+  {t:"comida", a:13, setup:"¿Por qué el café presentó una denuncia?", punch:"Porque lo estaban moliendo a diario."},
+  {t:"comida", a:18, setup:"Mi relación con la comida es complicada.", punch:"Ella siempre está ahí para mí, yo nunca estoy a dieta."},
+
+  {t:"deportes", a:4, setup:"¿Por qué el balón fue al médico?", punch:"Porque se sentía des-inflado."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un futbolista?", punch:"Tener un lío de pies a cabeza."},
+  {t:"deportes", a:8, setup:"¿Qué le dijo un campo de fútbol a otro?", punch:"Nos vemos en la próxima jugada."},
+  {t:"deportes", a:13, setup:"Empecé a correr todos los días.", punch:"Corro a la cocina, corro al sofá."},
+  {t:"deportes", a:13, setup:"¿Por qué el boxeador llevó un paraguas?", punch:"Por si le caían golpes de suerte."},
+  {t:"deportes", a:18, setup:"Me inscribí al gimnasio en enero.", punch:"Mi membresía hace más ejercicio que yo."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice un hijo pastel a su papá pastel?", punch:"¡Papá, eres el más dulce!"},
+  {t:"familia", a:4, setup:"Mamá, ¿por qué el sol es amarillo?", punch:"Para que lo puedas encontrar rápido en el cielo."},
+  {t:"familia", a:8, setup:"¿Por qué los hermanos siempre pelean por el control remoto?", punch:"Porque nadie quiere cambiar de canal en la vida."},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de electricistas?", punch:"Que todos tengan buena conexión."},
+  {t:"familia", a:13, setup:"Mis padres dicen que hablo mucho por teléfono.", punch:"Es que mis amigos también tienen mucho que no decir."},
+  {t:"familia", a:18, setup:"Ser adulto es genial.", punch:"Dijo nadie después de pagar las facturas."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué la computadora fue al médico?", punch:"Porque tenía un virus."},
+  {t:"tecnologia", a:8, setup:"¿Cuál es el colmo de un router?", punch:"Perder la señal de su propia familia."},
+  {t:"tecnologia", a:13, setup:"Mi contraseña es 'incorrecta'.", punch:"Así, cuando la olvido, la computadora me dice: tu contraseña es incorrecta."},
+  {t:"tecnologia", a:13, setup:"¿Por qué el programador se quedó sin batería?", punch:"Porque dejó todo corriendo en segundo plano."},
+  {t:"tecnologia", a:18, setup:"Mi código funcionó a la primera.", punch:"Dije eso mismo en mis sueños esta noche."},
+
+  {t:"piratas", a:4, setup:"¿Cómo se llama el pirata más pequeño?", punch:"¡Media Pinta!"},
+  {t:"piratas", a:4, setup:"¿Qué le dice un pirata a otro en su cumpleaños?", punch:"¡Feliz cumple-arrr!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata no sabía el alfabeto?", punch:"Porque siempre se perdía en el mar (C)."},
+  {t:"piratas", a:13, setup:"El pirata quería jubilarse.", punch:"Pero dijo que aún tenía tesoros por cobrar."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice una vaca a otra vaca?", punch:"¡Muuu buenos días!"},
+  {t:"animales", a:4, setup:"¿Cómo se dice gato en inglés?", punch:"Cat. ¿Y en japonés? También suena raro, pero igual maúlla."},
+  {t:"animales", a:8, setup:"¿Por qué la jirafa tiene el cuello tan largo?", punch:"Porque tiene la cabeza muy lejos de los pies."},
+  {t:"animales", a:8, setup:"¿Qué le dijo un caracol a otro caracol?", punch:"Vamos rápido, que se hace tarde... en tres días."},
+  {t:"animales", a:13, setup:"Mi hámster hace ejercicio todo el día.", punch:"Corre en su rueda y no llega a ningún lado, como yo con mis metas."},
+  {t:"animales", a:13, setup:"¿Por qué los delfines nadan siempre en el mar?", punch:"Porque si nadaran en la tierra se vería raro."},
+  {t:"animales", a:18, setup:"Tengo un perro guardián.", punch:"Guarda la casa, mis zapatillas y toda mi paciencia."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice un lápiz a otro lápiz?", punch:"¡Qué punta tienes hoy!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un bibliotecario?", punch:"Que le quiten el libro de la palabra."},
+  {t:"escuela", a:8, setup:"¿Por qué la tarea nunca llega sola a casa?", punch:"Porque siempre viene acompañada de excusas."},
+  {t:"escuela", a:13, setup:"Estudié toda la noche para el examen.", punch:"Y a la mañana el examen estudió toda mi cara de sueño."},
+  {t:"escuela", a:18, setup:"En la universidad aprendí a administrar mi tiempo.", punch:"Ahora sé exactamente cuánto tardo en procrastinar."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice un huevo a una sartén?", punch:"¡Me tienes frito!"},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de un cocinero?", punch:"Tener un sartén por el mango y aun así quemarse."},
+  {t:"comida", a:8, setup:"¿Qué hace una pizza cuando tiene calor?", punch:"Se derrite de queso."},
+  {t:"comida", a:13, setup:"Fui al gimnasio y luego comí una pizza entera.", punch:"El balance es lo importante."},
+  {t:"comida", a:18, setup:"Cociné para toda la semana el domingo.", punch:"El lunes ya pedí comida a domicilio."},
+
+  {t:"deportes", a:4, setup:"¿Por qué la pelota de tenis fue al doctor?", punch:"Porque se sentía un poco pachucha."},
+  {t:"deportes", a:8, setup:"¿Qué le dice un arquero a la pelota?", punch:"A mí no me la metes."},
+  {t:"deportes", a:13, setup:"Mi plan de entrenamiento es simple.", punch:"Pensar mucho en hacer ejercicio."},
+  {t:"deportes", a:18, setup:"Compré ropa deportiva nueva.", punch:"Ya cumplí el 90% de mi propósito de año nuevo."},
+
+  {t:"familia", a:4, setup:"¿Por qué el bebé pastel lloraba?", punch:"Porque su mamá lo estaba regañando... con crema."},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de relojeros?", punch:"Que sus hijos siempre den la hora exacta."},
+  {t:"familia", a:13, setup:"Mi hermano dice que soy adoptado.", punch:"Yo le digo que por eso tengo mejor gusto musical."},
+  {t:"familia", a:18, setup:"Mis padres me preguntan cuándo voy a sentar cabeza.", punch:"Les digo que la cabeza ya la tengo sentada, lo demás está en proceso."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué el teléfono usaba lentes?", punch:"Porque había perdido su contacto."},
+  {t:"tecnologia", a:13, setup:"Actualicé mi teléfono y ahora todo es distinto.", punch:"Menos mi forma de perder el cargador."},
+  {t:"tecnologia", a:18, setup:"Mi inteligencia artificial favorita me entiende mejor que la gente.", punch:"Aunque a veces también se equivoca con confianza absoluta."},
+
+  {t:"piratas", a:4, setup:"¿Qué le regala un pirata a su novia?", punch:"¡Un anillo de oro y un mapa a su corazón!"},
+  {t:"piratas", a:8, setup:"¿Cómo se llama un pirata que no encuentra el tesoro?", punch:"Desorientado, arrr."},
+  {t:"piratas", a:13, setup:"El loro del pirata repetía todo.", punch:"Hasta que el pirata le dijo un secreto y ya nadie lo quiso invitar a fiestas."},
+
+  {t:"ciencia", a:8, setup:"¿Por qué el átomo estaba triste?", punch:"Porque había perdido un electrón y ya no era el mismo."},
+  {t:"ciencia", a:8, setup:"¿Qué le dijo un imán a otro imán?", punch:"Me siento muy atraído hacia ti."},
+  {t:"ciencia", a:13, setup:"¿Por qué los químicos no confían en los átomos?", punch:"Porque forman todo."},
+  {t:"ciencia", a:13, setup:"¿Cuál es el colmo de un astrónomo?", punch:"No ver estrellas ni cuando le pegan un golpe."},
+  {t:"ciencia", a:18, setup:"Estudié física cuántica para entender el universo.", punch:"Ahora ni siquiera entiendo por qué el wifi se corta."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice una guitarra a otra guitarra?", punch:"¡Qué bien afinada estás hoy!"},
+  {t:"musica", a:8, setup:"¿Cuál es el colmo de un músico?", punch:"Tener una nota pero no poder cobrarla en el banco."},
+  {t:"musica", a:13, setup:"Mi banda favorita canceló el concierto.", punch:"Dijeron que necesitaban un descanso... de mí cantando sus canciones."},
+  {t:"musica", a:18, setup:"Toco la guitarra desde hace diez años.", punch:"Todavía solo sé tres acordes, pero los toco con mucho sentimiento."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice un pollito a su mamá?", punch:"¡Pío pío, te quiero mucho!"},
+  {t:"animales", a:4, setup:"¿Cómo saluda un elefante?", punch:"Con la trompa en alto, ¡hola!"},
+  {t:"animales", a:4, setup:"¿Qué hace una oveja en la peluquería?", punch:"Se hace un corte muy lanudo."},
+  {t:"animales", a:8, setup:"¿Por qué el pingüino lleva siempre esmoquin?", punch:"Porque nunca sabe cuándo irá a una fiesta elegante."},
+  {t:"animales", a:8, setup:"¿Qué le dice un tiburón a otro tiburón?", punch:"Nada personal, solo tengo hambre."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de una tortuga?", punch:"Llegar siempre tarde a su propia carrera."},
+  {t:"animales", a:13, setup:"Mi gato me mira como si supiera todos mis secretos.", punch:"Y probablemente los está guardando para chantajearme."},
+  {t:"animales", a:13, setup:"Los flamencos duermen parados en una pata.", punch:"Yo no puedo ni dormir con las dos puestas en la cama."},
+  {t:"animales", a:18, setup:"Los perros mueven la cola cuando están felices.", punch:"Yo muevo el carrito del súper cuando veo ofertas."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice la mochila al cuaderno?", punch:"¡Súbete, que ya nos vamos a clase!"},
+  {t:"escuela", a:4, setup:"¿Por qué el número 6 le tenía miedo al 7?", punch:"Porque el 7 se comió al 8... ¡nueve!"},
+  {t:"escuela", a:8, setup:"¿Qué le dice un pizarrón a otro pizarrón?", punch:"Tengo la sensación de que me estás borrando la espalda."},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un profesor de geografía?", punch:"Perderse yendo a su propia casa."},
+  {t:"escuela", a:13, setup:"Me preguntaron cuál era mi materia favorita.", punch:"Dije recreo, y me pusieron falta por payasadas."},
+  {t:"escuela", a:13, setup:"El examen sorpresa no me sorprendió.", punch:"Ya sabía que no había estudiado nada."},
+  {t:"escuela", a:18, setup:"Fui a la reunión de ex alumnos.", punch:"Y me di cuenta de que sigo debiendo la biblioteca."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice un plátano a otro plátano?", punch:"¡Nos vemos en el frutero!"},
+  {t:"comida", a:4, setup:"¿Cómo se llama el rey de las verduras?", punch:"El brócoli-rey."},
+  {t:"comida", a:8, setup:"¿Por qué el chocolate fue al psicólogo?", punch:"Porque tenía demasiadas capas."},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de un heladero?", punch:"Que le den la espalda cuando hace más calor."},
+  {t:"comida", a:13, setup:"Dije que iba a cocinar sano toda la semana.", punch:"El martes ya pedí hamburguesa doble."},
+  {t:"comida", a:13, setup:"¿Qué le dijo la sal al azúcar?", punch:"Contigo la vida es más dulce, conmigo más interesante."},
+  {t:"comida", a:18, setup:"Mi presupuesto para comer afuera es ilimitado.", punch:"Mientras mi cuenta bancaria no se entere."},
+
+  {t:"deportes", a:4, setup:"¿Por qué el lápiz jugó fútbol?", punch:"Porque quería marcar la cancha."},
+  {t:"deportes", a:8, setup:"¿Qué le dice un jugador de básquet a la pelota?", punch:"Confía en mí, esta vez sí entra."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un ciclista?", punch:"Que le pongan una multa por ir sobre ruedas."},
+  {t:"deportes", a:13, setup:"Mi entrenador dice que tengo mucho potencial.", punch:"El problema es que sigue sin usarse."},
+  {t:"deportes", a:13, setup:"¿Por qué el nadador siempre llega temprano?", punch:"Porque se tira de cabeza a todo."},
+  {t:"deportes", a:18, setup:"Me anoté a una maratón.", punch:"La de ver series, la corro sin problema."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice un huevo a su papá huevo?", punch:"¡Te quiero un montón, cascarón!"},
+  {t:"familia", a:4, setup:"¿Por qué la abuela lleva galletas en la cartera?", punch:"Por si algún nieto aparece con hambre."},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de jardineros?", punch:"Que sus problemas siempre florezcan."},
+  {t:"familia", a:8, setup:"Mi hermano menor dice que yo mando en la casa.", punch:"Mando los mensajes que mamá me pide reenviar."},
+  {t:"familia", a:13, setup:"Mis papás dicen que estoy en la edad difícil.", punch:"Yo digo que ellos están en la edad de no entender nada."},
+  {t:"familia", a:18, setup:"En las reuniones familiares siempre preguntan lo mismo.", punch:"Cuándo me caso, cuándo tengo hijos y si ya comí."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué la impresora no tenía amigos?", punch:"Porque siempre se atascaba en el momento importante."},
+  {t:"tecnologia", a:8, setup:"¿Qué le dice un mouse a otro mouse?", punch:"Hazme clic si me quieres."},
+  {t:"tecnologia", a:13, setup:"Mi celular tiene el 1% de batería.", punch:"Al igual que mis ganas de responder mensajes."},
+  {t:"tecnologia", a:13, setup:"¿Por qué el wifi de casa se llama 'no lo intentes'?", punch:"Para desanimar a los vecinos desde el nombre."},
+  {t:"tecnologia", a:18, setup:"Tengo veinte pestañas abiertas en el navegador.", punch:"Es mi forma personal de multitarea con ansiedad."},
+
+  {t:"piratas", a:4, setup:"¿Qué usa un pirata para escribir?", punch:"¡Una pluma de loro!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata compró un GPS?", punch:"Porque su mapa del tesoro tenía demasiados errores."},
+  {t:"piratas", a:13, setup:"El capitán pirata perdió las llaves del barco.", punch:"Tuvo que quedarse a la deriva mientras las buscaba."},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice el sol a la tierra?", punch:"¡No te preocupes, siempre voy a brillar para ti!"},
+  {t:"ciencia", a:8, setup:"¿Por qué la luna no le pide dinero prestado al sol?", punch:"Porque ya está siempre en fase de cambio."},
+  {t:"ciencia", a:13, setup:"¿Qué le dijo un volcán a otro volcán?", punch:"Te extraño lava."},
+  {t:"ciencia", a:18, setup:"Estudié biología para entender la vida.", punch:"Y terminé entendiendo solo el ciclo del café."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice un tambor a otro tambor?", punch:"¡Nos vemos en el redoble!"},
+  {t:"musica", a:8, setup:"¿Cuál es el colmo de un cantante?", punch:"Perder la voz justo antes del concierto."},
+  {t:"musica", a:13, setup:"Mi playlist tiene canciones de hace veinte años.", punch:"Dicen que soy un alma vieja, yo digo que tengo buen gusto."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice un caballo a otro caballo?", punch:"¡Vamos al trote, que se hace tarde!"},
+  {t:"animales", a:8, setup:"¿Por qué la araña no usa computadora?", punch:"Porque prefiere tejer su propia red."},
+  {t:"animales", a:13, setup:"Mi loro repite todo lo que digo.", punch:"Ahora tengo un testigo de todas mis malas decisiones."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice la tiza al pizarrón?", punch:"¡Contigo siempre dejo huella!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno puntual?", punch:"Llegar antes que el profesor y quedarse esperando."},
+  {t:"escuela", a:13, setup:"Mi compañero copió en el examen.", punch:"Hasta copió mal mi nombre en la hoja."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice una manzana a otra manzana?", punch:"¡Qué bien te ves hoy, jugosa!"},
+  {t:"comida", a:8, setup:"¿Por qué el pan no gana discusiones?", punch:"Porque siempre se pone tostado."},
+  {t:"comida", a:13, setup:"Prometí no comer entre comidas.", punch:"Técnicamente, ahora como durante todas las comidas seguidas."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la portería al balón?", punch:"¡Entra cuando quieras, aquí te espero!"},
+  {t:"deportes", a:8, setup:"¿Por qué el corredor llevaba un reloj roto?", punch:"Porque decía que el tiempo no le importaba."},
+  {t:"deportes", a:18, setup:"Compré pesas para hacer ejercicio en casa.", punch:"Ahora las uso de sostén de libros."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice un ratón a otro ratón?", punch:"¡Vamos a buscar queso, corre corre!"},
+  {t:"animales", a:4, setup:"¿Cómo se saludan dos abejas?", punch:"¡Hola, zumbido amigo!"},
+  {t:"animales", a:8, setup:"¿Por qué el camaleón no juega a las escondidas?", punch:"Porque siempre lo encuentran, pero nunca lo ven venir."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un canguro?", punch:"Que se le pierdan las llaves en su propio bolsillo."},
+  {t:"animales", a:13, setup:"Mi tortuga es más rápida que yo los lunes.", punch:"Ella al menos tiene una excusa de nacimiento."},
+  {t:"animales", a:18, setup:"Tengo un pez de mascota.", punch:"Es la relación más tranquila que he tenido en años."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el recreo a la clase?", punch:"¡Nos vemos en diez minutos, aguanta!"},
+  {t:"escuela", a:8, setup:"¿Por qué la regla se sentía importante?", punch:"Porque siempre tenía la razón, medida por medida."},
+  {t:"escuela", a:13, setup:"El profesor dijo que el celular distrae.", punch:"Se lo dije a mi celular pero no me contestó, estaba distraído."},
+  {t:"escuela", a:18, setup:"Mi tesis tiene doscientas páginas.", punch:"Y todavía nadie las va a leer completas, ni yo."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice el helado al sol?", punch:"¡No te acerques tanto, que me derrito de nervios!"},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de una galleta?", punch:"Que la mojen y se deshaga toda la personalidad."},
+  {t:"comida", a:13, setup:"Prometí comer solo ensaladas este mes.", punch:"La ensalada de papas cuenta, ¿no?"},
+  {t:"comida", a:18, setup:"Me encanta cocinar los domingos.", punch:"Los otros seis días amo pedir comida."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice el silbato al árbitro?", punch:"¡Cuenta conmigo, yo aviso cuando algo pasa!"},
+  {t:"deportes", a:8, setup:"¿Por qué el corredor de maratón lleva reloj?", punch:"Para saber cuánto falta para arrepentirse de correr."},
+  {t:"deportes", a:13, setup:"Empecé yoga para relajarme.", punch:"Ahora me estreso pensando en si hago bien la postura."},
+
+  {t:"familia", a:4, setup:"¿Por qué el abuelo siempre cuenta la misma historia?", punch:"Porque es tan buena que hay que escucharla dos veces."},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de músicos?", punch:"Que en cada pelea haya siempre una nota discordante."},
+  {t:"familia", a:13, setup:"Mi mamá siempre sabe cuándo miento.", punch:"Creo que tiene un detector instalado desde que nací."},
+  {t:"familia", a:18, setup:"En Navidad toda la familia se junta.", punch:"Y en cinco minutos ya hay tres discusiones políticas."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué la tablet se sentía sola?", punch:"Porque todos preferían el celular."},
+  {t:"tecnologia", a:13, setup:"Mi computadora se actualiza justo cuando la necesito.", punch:"Es como si supiera el peor momento posible."},
+  {t:"tecnologia", a:18, setup:"Configuré mi casa inteligente.", punch:"Ahora hasta las luces me ignoran cuando les hablo."},
+
+  {t:"piratas", a:4, setup:"¿Qué toma un pirata cuando tiene sed?", punch:"¡Un vaso de agua de mar... con hielo, arrr!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata no jugaba a las cartas en el barco?", punch:"Porque siempre había un tiburón mirando su mano."},
+
+  {t:"ciencia", a:8, setup:"¿Qué le dice un planeta a otro planeta?", punch:"Me encanta girar en tu órbita."},
+  {t:"ciencia", a:13, setup:"¿Por qué los científicos no confían en las escaleras?", punch:"Porque siempre están tramando algo."},
+  {t:"ciencia", a:18, setup:"Estudié el espacio profundo en la universidad.", punch:"Ahora entiendo mejor el vacío de mi cuenta bancaria."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice el piano al violín?", punch:"¡Hagamos una melodía juntos!"},
+  {t:"musica", a:8, setup:"¿Cuál es el colmo de un baterista?", punch:"Que se le rompa el tambor en pleno solo."},
+  {t:"musica", a:18, setup:"Fui a un concierto acústico.", punch:"Fue tan tranquilo que casi me quedo dormido de pie."},
+
+  {t:"superheroes", a:4, setup:"¿Qué le dice un superhéroe a otro?", punch:"¡Volemos juntos a salvar el día!"},
+  {t:"superheroes", a:4, setup:"¿Cuál es la fruta favorita de Superman?", punch:"La kryptonita... no, mejor la manzana, que es más segura."},
+  {t:"superheroes", a:8, setup:"¿Por qué Batman no usa redes sociales?", punch:"Porque prefiere mantener su identidad secreta."},
+  {t:"superheroes", a:8, setup:"¿Cuál es el colmo de un superhéroe?", punch:"Tener superfuerza pero no poder abrir un frasco de mermelada."},
+  {t:"superheroes", a:13, setup:"Quise ser superhéroe de grande.", punch:"Ahora solo tengo súper sueño y capa de manta."},
+  {t:"superheroes", a:13, setup:"El superhéroe llegó tarde a salvar la ciudad.", punch:"Dijo que el tráfico también es su archienemigo."},
+  {t:"superheroes", a:18, setup:"De grande quería tener superpoderes.", punch:"Ahora me conformo con encontrar las llaves a la primera."},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice la maleta al viajero?", punch:"¡Llévame contigo a la aventura!"},
+  {t:"viajes", a:8, setup:"¿Por qué el avión llegó tarde?", punch:"Porque se quedó viendo las nubes con forma de animales."},
+  {t:"viajes", a:8, setup:"¿Cuál es el colmo de un turista?", punch:"Sacarle fotos al mapa en vez de al paisaje."},
+  {t:"viajes", a:13, setup:"Planifiqué mis vacaciones con meses de anticipación.", punch:"Y terminé perdiendo el vuelo por dormirme."},
+  {t:"viajes", a:13, setup:"¿Por qué la brújula siempre está tranquila?", punch:"Porque sabe hacia dónde va."},
+  {t:"viajes", a:18, setup:"Viajar abre la mente.", punch:"Y también vacía la billetera a una velocidad impresionante."},
+
+  {t:"animales", a:4, setup:"¿Cómo se llama un perro mago?", punch:"¡Labra-cadabra!"},
+  {t:"animales", a:8, setup:"¿Por qué el mono no usa reloj?", punch:"Porque ya tiene su propio tiempo de columpio."},
+  {t:"animales", a:13, setup:"Mi perro entiende más de veinte palabras.", punch:"Yo entiendo menos de cinco antes del café."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el borrador al lápiz?", punch:"¡Yo arreglo lo que tú arruinas!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno de arte?", punch:"Que le borren la tarea y diga que era abstracta."},
+  {t:"escuela", a:18, setup:"Volví a estudiar de adulto.", punch:"Ahora hago la tarea entre reuniones de trabajo."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice el queso al pan?", punch:"¡Contigo todo sándwich es mejor!"},
+  {t:"comida", a:8, setup:"¿Por qué el limón fue a terapia?", punch:"Porque siempre se sentía muy ácido con todos."},
+  {t:"comida", a:13, setup:"Dije que iba a cocinar más saludable.", punch:"El aceite de oliva no cuenta como verdura, me dijeron."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la bicicleta al ciclista?", punch:"¡Vamos, dale para adelante!"},
+  {t:"deportes", a:8, setup:"¿Por qué el jugador de ajedrez fue al gimnasio?", punch:"Para hacer jaque a sus músculos."},
+  {t:"deportes", a:18, setup:"Me inscribí a clases de baile.", punch:"Sigo bailando como quien busca las llaves en la oscuridad."},
+
+  {t:"familia", a:4, setup:"¿Por qué el bebé se ríe tanto?", punch:"Porque todavía no sabe de facturas ni de impuestos."},
+  {t:"familia", a:13, setup:"Mi hermana usa mi ropa sin avisar.", punch:"Ya perdí la cuenta de cuántas prendas 'compartimos'."},
+  {t:"familia", a:18, setup:"Mis padres me preguntan si ya cociné algo esta semana.", punch:"Técnicamente calenté agua, eso cuenta un poco."},
+
+  {t:"tecnologia", a:4, setup:"¿Qué le dice la pantalla al teclado?", punch:"¡Muéstrame lo que tienes que decir!"},
+  {t:"tecnologia", a:13, setup:"Mi videojuego favorito se actualizó de nuevo.", punch:"Ya perdí la cuenta de cuántas veces guardé mi progreso en vano."},
+  {t:"tecnologia", a:18, setup:"Trabajo remoto desde casa.", punch:"Mi comodidad y mi productividad pelean todo el día."},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice la estrella a la luna?", punch:"¡Brillamos mejor juntas en la noche!"},
+  {t:"ciencia", a:13, setup:"Aprendí sobre gravedad en clase.", punch:"Explica perfectamente por qué siempre se me cae todo."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice la flauta al clarinete?", punch:"¡Hagamos un dueto esta tarde!"},
+  {t:"musica", a:13, setup:"Canté en la ducha esta mañana.", punch:"Mis vecinos ya tienen una opinión formada sobre mi talento."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice el sapo a la rana?", punch:"¡Salta conmigo hasta el estanque!"},
+  {t:"animales", a:4, setup:"¿Cómo se llama un león que no ruge?", punch:"Un león resfriado."},
+  {t:"animales", a:8, setup:"¿Por qué la cebra no se pierde nunca?", punch:"Porque siempre sigue sus propias rayas."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un oso panda?", punch:"Que le digan que solo come ensaladas de bambú."},
+  {t:"animales", a:13, setup:"Mi conejo se escapó de la jaula otra vez.", punch:"A este paso va a tener más libertad que yo los findes."},
+  {t:"animales", a:18, setup:"Tengo dos gatos y ninguno me hace caso.", punch:"Al menos tienen algo en común con mis planes de dieta."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el uniforme a la mochila?", punch:"¡Vamos juntos a la escuela!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un profesor de música?", punch:"Que le pongan mala nota."},
+  {t:"escuela", a:13, setup:"Dejé la tarea para el último momento.", punch:"El último momento y yo ya somos viejos conocidos."},
+  {t:"escuela", a:18, setup:"Hice un posgrado para especializarme.", punch:"Ahora sé mucho de un tema y nada de vida social."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la fresa al helado?", punch:"¡Juntos somos el postre perfecto!"},
+  {t:"comida", a:8, setup:"¿Por qué la sandía no puede casarse?", punch:"Porque ya está comprometida en el frutero."},
+  {t:"comida", a:13, setup:"Iba a comer solo verduras esta semana.", punch:"Las papas fritas técnicamente vienen de una verdura."},
+  {t:"comida", a:18, setup:"Aprendí a hacer pan casero.", punch:"Ahora tengo una nueva forma de procrastinar con harina."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice el guante de béisbol a la pelota?", punch:"¡Ven aquí, te atrapo siempre!"},
+  {t:"deportes", a:8, setup:"¿Por qué el jugador de golf llevaba dos pantalones?", punch:"Por si hacía un hoyo en uno."},
+  {t:"deportes", a:13, setup:"Empecé a hacer pesas hace un mes.", punch:"Lo único que crece es mi excusa para no ir."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice el osito de peluche al niño?", punch:"¡Abrázame fuerte antes de dormir!"},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de pintores?", punch:"Que sus discusiones siempre tengan muchos matices."},
+  {t:"familia", a:13, setup:"Mi hermano mayor dice que sabe todo de la vida.", punch:"Pero sigue sin saber doblar bien la ropa."},
+  {t:"familia", a:18, setup:"Ser el hijo del medio tiene ventajas.", punch:"Nadie se acuerda de culparme primero."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué el teclado se sentía estresado?", punch:"Porque siempre lo presionaban."},
+  {t:"tecnologia", a:13, setup:"Mi videollamada se cortó justo cuando iba a hablar.", punch:"La tecnología también tiene sentido del humor."},
+  {t:"tecnologia", a:18, setup:"Compré auriculares con cancelación de ruido.", punch:"Ahora ni siquiera escucho mis propios pensamientos."},
+
+  {t:"piratas", a:4, setup:"¿Cómo se llama el barco favorito de un pirata?", punch:"¡El que tiene más tesoro a bordo, arrr!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata siempre llevaba un catalejo?", punch:"Para ver los problemas venir de lejos."},
+
+  {t:"ciencia", a:8, setup:"¿Qué le dice un electrón a otro electrón?", punch:"Contigo siento una energía especial."},
+  {t:"ciencia", a:13, setup:"Estudiamos el sistema solar en clase.", punch:"Ahora entiendo mejor por qué mi vida gira en círculos."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice la maraca al tambor?", punch:"¡Sigamos el ritmo juntos!"},
+  {t:"musica", a:13, setup:"Compuse una canción sobre mis problemas.", punch:"Ahora mis problemas tienen coro y todo."},
+
+  {t:"superheroes", a:4, setup:"¿Qué usa un superhéroe para volar rápido?", punch:"¡Su capa y muchas ganas!"},
+  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe no comía dulces?", punch:"Porque cuidaba su súper figura."},
+  {t:"superheroes", a:13, setup:"Mi superpoder sería la teletransportación.", punch:"Así llegaría a tiempo al menos una vez en la vida."},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice el pasaporte al viajero?", punch:"¡Listo para la próxima aventura!"},
+  {t:"viajes", a:8, setup:"¿Por qué el mapa siempre está tranquilo?", punch:"Porque sabe exactamente dónde está todo."},
+  {t:"viajes", a:18, setup:"Hice las maletas con dos días de anticipación.", punch:"Aun así olvidé el cargador del celular."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice el pato a la pata?", punch:"¡Vamos a nadar juntos al charco!"},
+  {t:"animales", a:8, setup:"¿Por qué el pulpo no se pierde nunca?", punch:"Porque siempre tiene una mano libre para el mapa."},
+  {t:"animales", a:13, setup:"Mi perro ladra cada vez que suena el timbre.", punch:"Al menos alguien en casa sigue alerta."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el cuaderno al lápiz?", punch:"¡Escríbeme algo bonito hoy!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno distraído?", punch:"Buscar el celular mientras lo tiene en la mano."},
+  {t:"escuela", a:18, setup:"Fui a dar una charla sobre mi profesión.", punch:"Y terminé aprendiendo más yo que el público."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la miel a la abeja?", punch:"¡Gracias por hacerme tan dulce!"},
+  {t:"comida", a:13, setup:"Probé una dieta nueva esta semana.", punch:"Duró exactamente hasta que vi el menú del restaurante."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la red al balón de vóley?", punch:"¡Sube que aquí te espero!"},
+  {t:"deportes", a:13, setup:"Mi meta era correr cinco kilómetros.", punch:"Corrí dos y caminé el resto con mucha dignidad."},
+
+  {t:"familia", a:4, setup:"¿Por qué el papá cuenta chistes malos?", punch:"Porque es su trabajo oficial de papá."},
+  {t:"familia", a:13, setup:"Mis papás revisan mis redes sociales.", punch:"Ya perdí la cuenta de cuántas veces me han comentado sin avisar."},
+
+  {t:"tecnologia", a:4, setup:"¿Qué le dice el cargador al celular?", punch:"¡Yo te doy toda la energía que necesitas!"},
+  {t:"tecnologia", a:18, setup:"Probé trabajar sin notificaciones un día.", punch:"Me sentí más productivo y un poco en pánico."},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice la nube a la lluvia?", punch:"¡Cae con cuidado, que abajo hay gente!"},
+  {t:"ciencia", a:18, setup:"Aprendí sobre el efecto mariposa.", punch:"Ahora culpo a una mariposa por cada mal día."},
+
+  {t:"piratas", a:13, setup:"El pirata perdió su parche en la fiesta.", punch:"Nadie lo reconoció con los dos ojos abiertos."},
+
+  {t:"superheroes", a:18, setup:"De grande quería ser como mi superhéroe favorito.", punch:"Ahora solo aspiro a encontrar estacionamiento rápido."},
+
+  {t:"viajes", a:13, setup:"Fui de mochilero por primera vez.", punch:"Aprendí que 'viajar liviano' no incluía mi almohada favorita."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice la hormiga a la otra hormiga?", punch:"¡Vamos en fila, que el picnic es grande!"},
+  {t:"animales", a:4, setup:"¿Cómo saluda un búho a otro búho?", punch:"¡Buenas noches, colega nocturno!"},
+  {t:"animales", a:4, setup:"¿Qué le dice el gusanito a la manzana?", punch:"¡Qué bien que me diste casa y comida!"},
+  {t:"animales", a:8, setup:"¿Por qué el koala duerme tanto?", punch:"Porque el eucalipto lo deja muy relajado."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pez espada?", punch:"Que le pidan que corte la torta del cumpleaños."},
+  {t:"animales", a:8, setup:"¿Qué le dice una cebra a otra cebra en el espejo?", punch:"No sé si soy blanca con rayas negras o al revés."},
+  {t:"animales", a:13, setup:"Mi gato duerme dieciséis horas al día.", punch:"Es la única meta de vida que he logrado admirar de verdad."},
+  {t:"animales", a:13, setup:"El veterinario dijo que mi perro está sano.", punch:"Más sano que mis finanzas después de pagarle la consulta."},
+  {t:"animales", a:18, setup:"Adopté un perro para tener más rutina.", punch:"Ahora despierto más temprano que en cualquier trabajo que tuve."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el pupitre a la silla?", punch:"¡Aguantemos juntos todo el día!"},
+  {t:"escuela", a:4, setup:"¿Por qué el número 9 fue a la escuela?", punch:"Para aprender a ser el mejor de la clase."},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un maestro de educación física?", punch:"Que le digan que no da la talla."},
+  {t:"escuela", a:8, setup:"¿Qué le dice la campana a los alumnos?", punch:"¡Corran, que empieza el recreo!"},
+  {t:"escuela", a:13, setup:"Mi profesor de química dice que tengo buena reacción.", punch:"Sobre todo cuando anuncia examen sorpresa."},
+  {t:"escuela", a:13, setup:"Perdí mi lápiz favorito en el examen.", punch:"Ahora también perdí la mitad de mis respuestas."},
+  {t:"escuela", a:18, setup:"Terminé mis estudios y busco trabajo.", punch:"Pero todos piden experiencia que nadie me dio para empezar."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la naranja al limón?", punch:"¡Los dos somos cítricos con mucho jugo!"},
+  {t:"comida", a:4, setup:"¿Cómo se llama el postre más veloz?", punch:"El flan-tástico corredor."},
+  {t:"comida", a:8, setup:"¿Por qué el arroz nunca se pelea?", punch:"Porque siempre busca la manera de acompañar bien."},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de un vendedor de helados?", punch:"Que en invierno nadie le compre ni una bola."},
+  {t:"comida", a:13, setup:"Mi mamá cocina para todo un ejército.", punch:"Y aun así siempre falta comida cuando llego yo."},
+  {t:"comida", a:13, setup:"Compré comida saludable para la semana.", punch:"La mitad ya caducó porque olvidé que existía."},
+  {t:"comida", a:18, setup:"Aprendí a hacer sushi en casa.", punch:"Ahora gasto más en ingredientes que pidiendo en el restaurante."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la cancha al jugador?", punch:"¡Ven a correr un rato conmigo!"},
+  {t:"deportes", a:4, setup:"¿Cómo se llama un futbolista que no corre?", punch:"El arquero, porque su trabajo es quedarse quieto."},
+  {t:"deportes", a:8, setup:"¿Por qué el patinador siempre está de buen humor?", punch:"Porque va todo el día sobre ruedas."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un boxeador?", punch:"Que le peguen justo donde no puede taparse."},
+  {t:"deportes", a:13, setup:"Mi profesor de gimnasia dice que tengo potencial.", punch:"El potencial de llegar último con estilo."},
+  {t:"deportes", a:18, setup:"Compré una bicicleta para hacer ejercicio.", punch:"Ya lleva tres meses de decoración en el balcón."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice el hermano mayor al menor?", punch:"¡Yo te cuido, aunque a veces te moleste un poco!"},
+  {t:"familia", a:4, setup:"¿Por qué la mamá siempre encuentra todo?", punch:"Porque tiene un radar especial de mamá."},
+  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de fotógrafos?", punch:"Que en cada foto alguien salga con los ojos cerrados."},
+  {t:"familia", a:8, setup:"¿Qué le dice el primo grande al primo chico?", punch:"¡Vamos a jugar antes de que nos llamen a comer!"},
+  {t:"familia", a:13, setup:"Mis papás me dicen que soy igual a ellos.", punch:"Lo dicen como si fuera un halago y una advertencia a la vez."},
+  {t:"familia", a:18, setup:"Organizar una cena familiar es complicado.", punch:"Siempre hay alguien que no come algo, sin excepción."},
+
+  {t:"tecnologia", a:4, setup:"¿Qué le dice la tablet al niño?", punch:"¡Solo un ratito más, lo prometo!"},
+  {t:"tecnologia", a:8, setup:"¿Por qué el robot fue a terapia?", punch:"Porque tenía muchos tornillos sueltos, literalmente."},
+  {t:"tecnologia", a:8, setup:"¿Cuál es el colmo de una cámara?", punch:"Que le saquen fotos borrosas todo el tiempo."},
+  {t:"tecnologia", a:13, setup:"Mi laptop se calienta como si corriera una maratón.", punch:"Solo tiene abierta una pestaña de música."},
+  {t:"tecnologia", a:18, setup:"Actualicé todas mis contraseñas por seguridad.", punch:"Ahora ni yo mismo puedo entrar a mis cuentas."},
+
+  {t:"piratas", a:4, setup:"¿Qué le dice el tesoro al pirata?", punch:"¡Al fin me encontraste, llevaba siglos esperando!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata llevaba dos parches?", punch:"Para no perderse ningún lado del horizonte."},
+  {t:"piratas", a:13, setup:"El pirata quiso hacerse contador.", punch:"Pero seguía contando todo en monedas de oro."},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice el arcoíris a la lluvia?", punch:"¡Gracias por dejarme salir a brillar!"},
+  {t:"ciencia", a:8, setup:"¿Por qué el termómetro se sentía importante?", punch:"Porque siempre tenía la última palabra sobre el clima."},
+  {t:"ciencia", a:13, setup:"Estudiamos los volcanes en clase de ciencias.", punch:"Ahora entiendo mejor mis reacciones cuando me hacen enojar."},
+  {t:"ciencia", a:18, setup:"Me fascina la teoría del big bang.", punch:"Explica el universo mejor de lo que explico mis gastos del mes."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice el xilófono al triángulo?", punch:"¡Sonamos mejor cuando tocamos juntos!"},
+  {t:"musica", a:8, setup:"¿Por qué el saxofón siempre llega tarde?", punch:"Porque le cuesta encontrar su propio ritmo."},
+  {t:"musica", a:13, setup:"Formé una banda con mis amigos.", punch:"Todavía no sabemos tocar, pero el nombre ya lo tenemos."},
+  {t:"musica", a:18, setup:"Fui a clases de canto por un año.", punch:"Ahora desafino con mucha más técnica."},
+
+  {t:"superheroes", a:4, setup:"¿Qué le dice el escudo al superhéroe?", punch:"¡Yo te protejo de todo peligro!"},
+  {t:"superheroes", a:8, setup:"¿Por qué el villano siempre pierde?", punch:"Porque nunca lee el manual de cómo ser malo de verdad."},
+  {t:"superheroes", a:13, setup:"Si tuviera un superpoder, sería la invisibilidad.", punch:"Así podría evitar todas las reuniones aburridas."},
+  {t:"superheroes", a:18, setup:"De niño quería salvar el mundo.", punch:"De grande me conformo con salvar mi fin de semana."},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice el tren a la estación?", punch:"¡Nos vemos pronto, guarda mi lugar!"},
+  {t:"viajes", a:8, setup:"¿Por qué la valija siempre pesa más al volver?", punch:"Porque vuelve llena de recuerdos y souvenirs."},
+  {t:"viajes", a:13, setup:"Planeé un viaje con mis amigos.", punch:"Terminamos gastando más tiempo decidiendo el hotel que viajando."},
+  {t:"viajes", a:18, setup:"Quise viajar ligero de equipaje.", punch:"Terminé llevando tres pares de zapatos 'por si acaso'."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice el grillo a la luna?", punch:"¡Canto para ti toda la noche!"},
+  {t:"animales", a:8, setup:"¿Por qué la ardilla guarda tantas nueces?", punch:"Porque piensa en el invierno todo el año."},
+  {t:"animales", a:13, setup:"Mi perico repite todo lo que escucha en casa.", punch:"Ya sabe hasta mis excusas para no hacer ejercicio."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el timbre a los alumnos?", punch:"¡Ring ring, hora de entrar a clase!"},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un estudiante de arte?", punch:"Que le digan que su tarea parece un borrador."},
+  {t:"escuela", a:18, setup:"Volví a la universidad después de años.", punch:"Ahora soy el más grande del salón y el más perdido con la tecnología."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice el pastel a la vela?", punch:"¡Apágame los deseos, pero no me comas todavía!"},
+  {t:"comida", a:13, setup:"Fui al supermercado con hambre.", punch:"Volví con más comida de la que voy a poder guardar."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la raqueta a la pelota de tenis?", punch:"¡Vamos, que hoy jugamos en grande!"},
+  {t:"deportes", a:18, setup:"Empecé a nadar por las mañanas.", punch:"Mi cama sigue ganando la mayoría de las batallas."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice el bebé a su hermana mayor?", punch:"¡Enséñame a caminar como tú!"},
+  {t:"familia", a:13, setup:"Mi hermana siempre gana las discusiones.", punch:"Tiene un doctorado no oficial en tener la razón."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué la calculadora nunca se equivoca?", punch:"Porque siempre piensa las cosas con números."},
+  {t:"tecnologia", a:18, setup:"Compré un reloj inteligente para cuidar mi salud.", punch:"Ahora me recuerda que debería moverme más, todo el día."},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice la semilla a la tierra?", punch:"¡Ayúdame a crecer grande y fuerte!"},
+  {t:"ciencia", a:13, setup:"Aprendimos sobre los planetas del sistema solar.", punch:"Ahora sé que Plutón tiene más drama que mi familia."},
+
+  {t:"piratas", a:4, setup:"¿Qué le dice el ancla al barco pirata?", punch:"¡Yo te sostengo mientras buscas el tesoro!"},
+
+  {t:"musica", a:4, setup:"¿Qué le dice el micrófono al cantante?", punch:"¡Canta fuerte, yo te ayudo a que te escuchen!"},
+
+  {t:"superheroes", a:4, setup:"¿Qué le dice la capa al superhéroe?", punch:"¡Vuela que yo te sigo el ritmo!"},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice el barco al mar?", punch:"¡Llévame a descubrir nuevas islas!"},
+
+  {t:"animales", a:4, setup:"¿Qué le dice el perro al hueso?", punch:"¡Te voy a esconder en mi lugar secreto!"},
+  {t:"animales", a:4, setup:"¿Cómo hace un gato feliz?", punch:"Ronronea tan fuerte que tiembla la casa."},
+  {t:"animales", a:8, setup:"¿Por qué el murciélago duerme de cabeza?", punch:"Porque así todo le parece más interesante."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pez globo?", punch:"Que lo inviten a una fiesta y llegue inflado de más."},
+  {t:"animales", a:13, setup:"Mi perro aprendió a abrir la puerta.", punch:"Ahora entra y sale como si pagara el alquiler."},
+  {t:"animales", a:18, setup:"Mi gato me despierta a las cinco de la mañana.", punch:"Es el único despertador que no tiene botón de posponer."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el crayón al papel?", punch:"¡Vamos a llenarte de colores!"},
+  {t:"escuela", a:8, setup:"¿Por qué el globo terráqueo estaba mareado?", punch:"Porque no paraba de dar vueltas."},
+  {t:"escuela", a:13, setup:"Estudié toda la materia menos un tema.", punch:"Adivina de qué trató todo el examen."},
+  {t:"escuela", a:18, setup:"Me gradué con honores.", punch:"El honor de haber sobrevivido a cinco años de exámenes."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la zanahoria al conejo?", punch:"¡Cómeme, que estoy muy crujiente!"},
+  {t:"comida", a:8, setup:"¿Por qué el huevo no cuenta chistes?", punch:"Porque siempre se le rompe la seriedad."},
+  {t:"comida", a:13, setup:"Mi especialidad culinaria son los fideos.", punch:"Porque las instrucciones vienen en el paquete."},
+  {t:"comida", a:18, setup:"Guardé las sobras para mañana.", punch:"Mañana llegó a las once de la noche del mismo día."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la cuerda al niño que salta?", punch:"¡Uno, dos, tres, sigue así!"},
+  {t:"deportes", a:8, setup:"¿Por qué el futbolista llevaba una escalera?", punch:"Porque quería llegar a la primera división."},
+  {t:"deportes", a:13, setup:"Perdí el partido pero jugué bien.", punch:"Eso digo siempre y nadie me cree."},
+  {t:"deportes", a:18, setup:"Voy al gimnasio tres veces por semana.", punch:"Tres veces por semana pienso en ir."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice la abuela al nieto?", punch:"¡Come un poquito más, que estás muy flaquito!"},
+  {t:"familia", a:8, setup:"¿Por qué el papá siempre pierde el control remoto?", punch:"Porque se sienta encima sin darse cuenta."},
+  {t:"familia", a:13, setup:"Mis papás dicen que salgo mucho.", punch:"Salgo del cuarto a la cocina, básicamente."},
+  {t:"familia", a:18, setup:"Me mudé solo por independencia.", punch:"Ahora llamo a mi mamá para preguntar cómo se cocina el arroz."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué el USB estaba confundido?", punch:"Porque nunca entra bien a la primera."},
+  {t:"tecnologia", a:13, setup:"Guardé el archivo en un lugar seguro.", punch:"Tan seguro que ni yo lo encuentro."},
+  {t:"tecnologia", a:18, setup:"Instalé una app para dormir mejor.", punch:"Ahora me quedo despierto revisando las estadísticas de sueño."},
+
+  {t:"piratas", a:4, setup:"¿Qué come un pirata en el desayuno?", punch:"¡Pan del mar con mermelada de tesoro!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata no usaba brújula?", punch:"Porque decía que su instinto era su norte."},
+
+  {t:"ciencia", a:8, setup:"¿Qué le dice el agua al hielo?", punch:"¡Relájate un poco, que estás muy tenso!"},
+  {t:"ciencia", a:13, setup:"La luz viaja más rápido que el sonido.", punch:"Por eso algunos parecen brillantes hasta que hablan."},
+  {t:"ciencia", a:18, setup:"Leí que el universo se expande.", punch:"Igual que mi lista de cosas pendientes."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice la nota al pentagrama?", punch:"¡Aquí me quedo, este es mi lugar!"},
+  {t:"musica", a:8, setup:"¿Por qué el bajo siempre está tranquilo?", punch:"Porque lleva el ritmo desde el fondo sin hacer ruido."},
+  {t:"musica", a:18, setup:"Aprendí a tocar el ukelele en la cuarentena.", punch:"Mis vecinos aprendieron a cerrar bien las ventanas."},
+
+  {t:"superheroes", a:4, setup:"¿Qué desayuna un superhéroe?", punch:"¡Cereal con mucha energía!"},
+  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe llegó tarde al rescate?", punch:"Porque no encontraba dónde cambiarse de ropa."},
+  {t:"superheroes", a:13, setup:"Mi superpoder sería leer la mente.", punch:"Aunque creo que me arrepentiría en la primera clase."},
+
+  {t:"viajes", a:8, setup:"¿Por qué el globo aerostático es tan tranquilo?", punch:"Porque se toma la vida con mucha calma y aire."},
+  {t:"viajes", a:13, setup:"Reservé el hotel más barato que encontré.", punch:"Ahora entiendo por qué era el más barato."},
+  {t:"viajes", a:18, setup:"Volví de vacaciones más cansado que antes.", punch:"Necesito unas vacaciones de mis vacaciones."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice la mariposa a la flor?", punch:"¡Gracias por el desayuno de hoy!"},
+  {t:"animales", a:4, setup:"¿Cómo se llama un perro que hace magia con la cola?", punch:"Un cola-borador de trucos."},
+  {t:"animales", a:8, setup:"¿Por qué el erizo camina solo?", punch:"Porque abrazarlo es todo un desafío."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pájaro carpintero?", punch:"Que le den un trabajo de oficina."},
+  {t:"animales", a:13, setup:"Mi hámster corre en su rueda toda la noche.", punch:"Es el único de la casa que cumple su rutina de ejercicio."},
+  {t:"animales", a:18, setup:"Mi perro me recibe como si volviera de la guerra.", punch:"Fui a sacar la basura, tres minutos."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice la goma al error?", punch:"¡No te preocupes, yo te arreglo!"},
+  {t:"escuela", a:8, setup:"¿Por qué el diccionario es tan sabio?", punch:"Porque tiene respuestas para todas las palabras."},
+  {t:"escuela", a:13, setup:"El profesor preguntó quién no hizo la tarea.", punch:"Nadie levantó la mano, todos levantamos excusas."},
+  {t:"escuela", a:18, setup:"Aprendí mucho en la universidad.", punch:"Sobre todo a dormir cuatro horas y fingir energía."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la cuchara al plato?", punch:"¡Vamos a terminar toda la sopa juntos!"},
+  {t:"comida", a:8, setup:"¿Por qué la cebolla hace llorar?", punch:"Porque tiene muchas capas de sentimientos."},
+  {t:"comida", a:13, setup:"Cociné algo nuevo y salió mal.", punch:"Lo llamé experimento para no llamarlo desastre."},
+  {t:"comida", a:18, setup:"Tengo especias que nunca uso.", punch:"Están ahí para dar prestigio a mi cocina."},
+
+  {t:"deportes", a:4, setup:"¿Qué le dice la pelota al pie?", punch:"¡Dale suave que soy delicada!"},
+  {t:"deportes", a:8, setup:"¿Por qué el equipo llevaba paraguas al partido?", punch:"Porque esperaban una lluvia de goles."},
+  {t:"deportes", a:13, setup:"Mi récord personal corriendo es impresionante.", punch:"Corrí para alcanzar el autobús y lo logré."},
+  {t:"deportes", a:18, setup:"Me compré ropa deportiva cara.", punch:"Ahora estoy elegante mientras no hago ejercicio."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice el papá al bebé dormido?", punch:"¡Duerme tranquilo, yo cuido tus sueños!"},
+  {t:"familia", a:8, setup:"¿Por qué mamá siempre dice 'en un minuto'?", punch:"Porque su minuto dura media hora."},
+  {t:"familia", a:13, setup:"Mi familia dice que hablo dormido.", punch:"Es la única vez que me escuchan sin interrumpir."},
+  {t:"familia", a:18, setup:"Heredé la manía de mi papá de revisar todo dos veces.", punch:"Y también su costumbre de perder las llaves igual."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué el altavoz gritaba tanto?", punch:"Porque era su única forma de comunicarse."},
+  {t:"tecnologia", a:13, setup:"Mi batería dura todo el día.", punch:"Si no toco el teléfono en ningún momento."},
+  {t:"tecnologia", a:18, setup:"Guardo capturas de pantalla de todo.", punch:"Mi galería es un museo de cosas que nunca vuelvo a mirar."},
+
+  {t:"piratas", a:4, setup:"¿Qué canta un pirata en su cumpleaños?", punch:"¡Cumpleaños feliz, arrr, arrr!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata aprendió a nadar tarde?", punch:"Porque siempre confiaba demasiado en su barco."},
+  {t:"piratas", a:13, setup:"El pirata escribió sus memorias.", punch:"Las tituló 'Todo lo que enterré y olvidé dónde'."},
+
+  {t:"ciencia", a:8, setup:"¿Qué le dice el imán al metal?", punch:"¡Ven aquí, no te resistas!"},
+  {t:"ciencia", a:13, setup:"En clase aprendimos sobre el sonido.", punch:"Ahora sé por qué mis excusas rebotan en las paredes."},
+  {t:"ciencia", a:18, setup:"Me explicaron la relatividad del tiempo.", punch:"Lo confirmo cada lunes por la mañana."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice el tambor al palillo?", punch:"¡Golpea suave, que me haces cosquillas!"},
+  {t:"musica", a:8, setup:"¿Por qué el coro siempre está unido?", punch:"Porque si uno desafina, se nota enseguida."},
+  {t:"musica", a:13, setup:"Escucho la misma canción cincuenta veces.", punch:"Hasta que deja de gustarme y busco otra."},
+  {t:"musica", a:18, setup:"Mi playlist de concentración tiene cien canciones.", punch:"Paso más tiempo eligiendo cuál poner que trabajando."},
+
+  {t:"superheroes", a:4, setup:"¿Qué hace un superhéroe cuando se cansa?", punch:"¡Toma una siesta de superpoderes!"},
+  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe usa máscara?", punch:"Para que nadie le pida favores en el supermercado."},
+  {t:"superheroes", a:13, setup:"Los villanos siempre explican su plan completo.", punch:"Es el peor hábito profesional del mundo del crimen."},
+  {t:"superheroes", a:18, setup:"Mi superpoder de adulto es fingir que entiendo.", punch:"Funciona en reuniones y en conversaciones técnicas."},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice el avión a las nubes?", punch:"¡Déjenme pasar que llevo gente feliz!"},
+  {t:"viajes", a:8, setup:"¿Por qué el viajero llevaba dos relojes?", punch:"Para no perderse entre husos horarios."},
+  {t:"viajes", a:13, setup:"Aprendí tres palabras del idioma local.", punch:"Hola, gracias y dónde está el baño. Suficiente."},
+  {t:"viajes", a:18, setup:"Siempre digo que voy a viajar ligero.", punch:"Siempre termino pagando exceso de equipaje."},
+
+  {t:"animales", a:4, setup:"¿Qué hace un perro con un taladro?", punch:"¡Taladrando!"},
+  {t:"animales", a:4, setup:"¿Cómo se llama un cocodrilo con GPS?", punch:"Un navegador."},
+  {t:"animales", a:4, setup:"¿Qué le dice una iguana a su hermana gemela?", punch:"¡Somos iguanitas!"},
+  {t:"animales", a:8, setup:"¿Qué hace una vaca cuando sale el sol?", punch:"Sombra."},
+  {t:"animales", a:8, setup:"¿Cómo se despiden los químicos que tienen perro?", punch:"Ácido un placer."},
+  {t:"animales", a:8, setup:"¿Cuál es el animal más gracioso?", punch:"El pato, porque siempre está de pata en pata."},
+  {t:"animales", a:13, setup:"¿Qué le dijo el caracol al perezoso?", punch:"Corre, que nos pasa el tiempo."},
+  {t:"animales", a:13, setup:"Los peces nunca engordan.", punch:"Porque siempre están a dieta de escamas."},
+  {t:"animales", a:18, setup:"Mi gato tiene tres estados de ánimo.", punch:"Hambre, desprecio, y hambre con desprecio."},
+
+  {t:"escuela", a:4, setup:"¿Qué le dice el 1 al 10?", punch:"¡Para ser como yo, tienes que ser sincero!"},
+  {t:"escuela", a:8, setup:"¿Por qué el libro de matemáticas se fue al gimnasio?", punch:"Para resolver sus problemas de peso."},
+  {t:"escuela", a:8, setup:"¿Qué le dice el cero al ocho?", punch:"¡Bonito cinturón!"},
+  {t:"escuela", a:13, setup:"Mi profesor dijo que el examen sería pan comido.", punch:"Se le olvidó decir que yo estaba a dieta."},
+  {t:"escuela", a:13, setup:"Saqué un diez en el examen.", punch:"Un diez por ciento, pero un diez al fin."},
+  {t:"escuela", a:18, setup:"En la universidad aprendí tres idiomas.", punch:"Excusas, evasivas y silencios incómodos."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice el tomate al ketchup?", punch:"¡Mamá, te ves distinta!"},
+  {t:"comida", a:4, setup:"¿Qué hace un pan en el mar?", punch:"Naufra-miga."},
+  {t:"comida", a:8, setup:"¿Cuál es la fruta más paciente?", punch:"La pera, porque siempre es-pera."},
+  {t:"comida", a:8, setup:"¿Por qué el café llegó primero a la meta?", punch:"Porque estaba molido pero no vencido."},
+  {t:"comida", a:13, setup:"Mi dieta funciona perfectamente.", punch:"Bajé de peso el celular al desinstalar apps de comida."},
+  {t:"comida", a:13, setup:"¿Cuál es el postre más honesto?", punch:"El flan, porque siempre tiembla al decir la verdad."},
+  {t:"comida", a:18, setup:"Compré verduras frescas el domingo.", punch:"El viernes las tiré, también frescas, pero verdes de otra forma."},
+
+  {t:"deportes", a:4, setup:"¿Por qué el balón no va a fiestas?", punch:"Porque siempre lo patean."},
+  {t:"deportes", a:8, setup:"¿Cuál es el deporte favorito de los fantasmas?", punch:"El bóley, porque siempre están en el aire."},
+  {t:"deportes", a:8, setup:"¿Por qué el árbitro llevaba lentes?", punch:"Porque todos le decían que no veía nada."},
+  {t:"deportes", a:13, setup:"Mi entrenador dice que corra con el corazón.", punch:"Le dije que mis piernas tienen otra opinión."},
+  {t:"deportes", a:13, setup:"¿Cuál es el colmo de un maratonista?", punch:"Llegar primero al sofá."},
+  {t:"deportes", a:18, setup:"Me apunté al gimnasio en enero.", punch:"En febrero ya era socio honorario ausente."},
+
+  {t:"familia", a:4, setup:"¿Qué le dice la mamá oso al osito?", punch:"¡A dormir, que mañana hay miel!"},
+  {t:"familia", a:8, setup:"¿Por qué los hermanos son como el wifi?", punch:"Cuando más los necesitas, no están disponibles."},
+  {t:"familia", a:13, setup:"Mi mamá tiene visión de rayos X.", punch:"Sabe que mentí antes de que termine la frase."},
+  {t:"familia", a:13, setup:"En mi casa hay democracia.", punch:"Todos votamos y gana mamá."},
+  {t:"familia", a:18, setup:"Ahora entiendo a mis padres.", punch:"Justo cuando mis hijos dejaron de entenderme a mí."},
+
+  {t:"tecnologia", a:8, setup:"¿Por qué el ratón no puede correr?", punch:"Porque está atado al cable."},
+  {t:"tecnologia", a:8, setup:"¿Qué hace un programador en el desierto?", punch:"Busca un oasis de wifi."},
+  {t:"tecnologia", a:13, setup:"¿Por qué el libro le ganó al e-book?", punch:"Porque nunca se queda sin batería."},
+  {t:"tecnologia", a:13, setup:"Mi contraseña tiene doce caracteres.", punch:"Todos ellos olvidados."},
+  {t:"tecnologia", a:18, setup:"Dicen que hay que desconectarse un día.", punch:"Lo intenté y terminé mirando la pared en HD."},
+
+  {t:"piratas", a:4, setup:"¿Cuál es la letra favorita de un pirata?", punch:"¡La erre, arrr!"},
+  {t:"piratas", a:8, setup:"¿Por qué el pirata no aprobó el examen?", punch:"Porque todo lo dejó en el mapa del tesoro."},
+  {t:"piratas", a:13, setup:"El pirata abrió una panadería.", punch:"Vende pan-teones de sabor."},
+
+  {t:"ciencia", a:8, setup:"¿Por qué el libro de física se hundió?", punch:"Porque tenía mucha materia."},
+  {t:"ciencia", a:8, setup:"¿Qué le dice el uno al cero en el laboratorio?", punch:"Sin ti, no soy nada binario."},
+  {t:"ciencia", a:13, setup:"¿Por qué el oxígeno y el hidrógeno se llevan bien?", punch:"Porque juntos fluyen."},
+  {t:"ciencia", a:13, setup:"Un neutrón entra a un bar y pregunta el precio.", punch:"El barman dice: para ti, sin cargo."},
+  {t:"ciencia", a:18, setup:"Dicen que la energía no se crea ni se destruye.", punch:"La mía claramente se transformó en sueño."},
+
+  {t:"musica", a:4, setup:"¿Qué le dice el do al re?", punch:"¡Sígueme, que voy primero!"},
+  {t:"musica", a:8, setup:"¿Cuál es el instrumento más sincero?", punch:"El triángulo, porque no tiene dobleces."},
+  {t:"musica", a:13, setup:"Mi banda tocó su primer concierto.", punch:"Y también el último, según el público."},
+  {t:"musica", a:18, setup:"Toco de oído.", punch:"Por eso siempre suena como si me lo estuvieran susurrando mal."},
+
+  {t:"superheroes", a:4, setup:"¿Cuál es el superhéroe más rápido del desayuno?", punch:"¡Flash, que llega antes que la leche!"},
+  {t:"superheroes", a:8, setup:"¿Por qué el hombre invisible no tiene amigos?", punch:"Porque nadie lo ve venir."},
+  {t:"superheroes", a:13, setup:"Mi superpoder es dormirme en cualquier lugar.", punch:"Mi debilidad es despertarme a tiempo."},
+  {t:"superheroes", a:18, setup:"Ser adulto es tener superpoderes.", punch:"Puedo comer helado de cena y nadie me detiene."},
+
+  {t:"viajes", a:4, setup:"¿Qué le dice el mapa a la brújula?", punch:"¡Tú apunta y yo te muestro!"},
+  {t:"viajes", a:8, setup:"¿Por qué el avión no tiene amigos en tierra?", punch:"Porque siempre está por las nubes."},
+  {t:"viajes", a:13, setup:"Viajé con equipaje de mano solamente.", punch:"Y compré una maleta allá para traer todo lo que compré."},
+  {t:"viajes", a:18, setup:"Dicen que lo importante es el viaje, no el destino.", punch:"Eso lo dijo alguien que nunca tuvo escala de nueve horas."},
+
+  {t:"animales", a:4, setup:"¿Qué le dice un gato a otro gato enamorado?", punch:"¡Estás miau-ravilloso!"},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de una foca?", punch:"Que le digan que aplauda con las manos."},
+  {t:"animales", a:13, setup:"Los búhos son los más sabios.", punch:"Por eso nunca trasnochan por Netflix."},
+
+  {t:"escuela", a:4, setup:"¿Por qué el libro está siempre callado?", punch:"Porque habla con las páginas."},
+  {t:"escuela", a:13, setup:"El examen tenía una pregunta de desarrollo.", punch:"Yo desarrollé mucha ansiedad."},
+
+  {t:"comida", a:4, setup:"¿Qué le dice la uva a la pasa?", punch:"¡Qué arrugada estás, prima!"},
+  {t:"comida", a:18, setup:"Cociné siguiendo la receta al pie de la letra.", punch:"El problema es que la letra era de otro plato."},
+
+  {t:"familia", a:8, setup:"¿Qué le dice el calcetín izquierdo al derecho?", punch:"¡Somos familia aunque nos separen en la lavadora!"},
+
+  {t:"tecnologia", a:4, setup:"¿Qué le dice el wifi a la casa?", punch:"¡Aquí llego, pero no a todos los cuartos!"},
+
+  {t:"ciencia", a:4, setup:"¿Qué le dice la gota de agua a la nube?", punch:"¡Ya me toca caer, hasta luego!"},
+
+  {t:"superheroes", a:8, setup:"¿Cuál es la comida favorita de un superhéroe?", punch:"El súper mercado entero."},
+
+  {t:"viajes", a:8, setup:"¿Cuál es el colmo de una maleta?", punch:"Que le pongan ruedas y aun así la arrastren."},
+  {t:"familia", a:18, setup:"Mi familia dice que soy el gracioso del grupo.", punch:"Lo dicen justo después de que nadie se ríe."},
+
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre cayendo por unas escaleras. ¿Cómo se llama la película?", punch:"Sin Ver Este Escalón (Silvester Stallone)"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ven un montón de ranas cantando de noche. ¿Cómo se llama la obra?", punch:"El Croar de la Noche"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a dos hermanos peleando por una manta. ¿Cómo se llama la película?", punch:"La Tira y Afloja"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve un tomate persiguiendo a otro. ¿Cómo se llama la obra?", punch:"La Persecución del Ketchup"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a una señora con un calendario. ¿Cómo se llama la obra?", punch:"Los Días Contados"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre dormido encima del reloj. ¿Cómo se llama la película?", punch:"El Tiempo se Detuvo"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un pez en una bicicleta. ¿Cómo se llama la obra?", punch:"Fuera de su Elemento"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve un campo lleno de ovejas dormidas. ¿Cómo se llama la película?", punch:"Cuenta Conmigo"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un niño sin dientes sonriendo. ¿Cómo se llama la obra?", punch:"El Ratón Pasó Anoche"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un panadero sin harina. ¿Cómo se llama la película?", punch:"Ni Pan Ni Nada"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un señor que trabaja sin parar. ¿Cómo se llama el actor?", punch:"Aquiles Curro (a quien le curro)"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre mirando el techo. ¿Cómo se llama la obra?", punch:"Techo de Cristal"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve un armario vacío. ¿Cómo se llama la película?", punch:"Nada que Ponerse"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un tipo esperando el autobús bajo la lluvia. ¿Cómo se llama la obra?", punch:"La Espera Mojada"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve una nevera abierta a las tres de la mañana. ¿Cómo se llama la película?", punch:"El Hambre Nocturno"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un estudiante mirando una hoja en blanco. ¿Cómo se llama la obra?", punch:"La Mente en Blanco"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre buscando las llaves que tiene en la mano. ¿Cómo se llama la película?", punch:"Búsqueda Innecesaria"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve una cuenta bancaria a final de mes. ¿Cómo se llama la obra?", punch:"El Vacío Existencial"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve a un hombre respondiendo correos a medianoche. ¿Cómo se llama la película?", punch:"Sin Horario Fijo"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve a alguien diciendo 'mañana empiezo la dieta'. ¿Cómo se llama la obra?", punch:"La Promesa Eterna"},
+
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre con una sartén en la cabeza. ¿Cómo se llama la película?", punch:"El Sartenazo Inesperado"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve una gallina leyendo un libro. ¿Cómo se llama la obra?", punch:"La Culta Ponedora"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a dos gatos peleando por un ovillo. ¿Cómo se llama la obra?", punch:"El Hilo del Conflicto"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve un semáforo en ámbar eterno. ¿Cómo se llama la película?", punch:"La Duda Permanente"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un caracol en una autopista. ¿Cómo se llama la obra?", punch:"Llegaré Algún Día"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un pingüino en el desierto. ¿Cómo se llama la película?", punch:"Error de Cálculo"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve una bombilla fundida. ¿Cómo se llama la obra?", punch:"Se Nos Fue la Idea"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre sin paraguas bajo un chaparrón. ¿Cómo se llama el actor?", punch:"Armando Charco"},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un señor empujando un coche averiado. ¿Cómo se llama el actor?", punch:"Armando Fuerza"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un tipo sin dinero a mitad de mes. ¿Cómo se llama la película?", punch:"Sin Blanca Nieves"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre que nunca contesta el móvil. ¿Cómo se llama el actor?", punch:"Elias Tanocupado"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve una cola larguísima en el banco. ¿Cómo se llama la obra?", punch:"La Paciencia Infinita"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a alguien buscando las gafas que lleva puestas. ¿Cómo se llama la obra?", punch:"Delante de tus Narices"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un estudiante empezando el trabajo la noche antes. ¿Cómo se llama la película?", punch:"Contrarreloj"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre discutiendo con el autocorrector. ¿Cómo se llama la obra?", punch:"Batalla Perdida"},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a un chico ensayando frente al espejo. ¿Cómo se llama la película?", punch:"El Discurso que Nunca Dirá"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve un despertador a las seis de la mañana del lunes. ¿Cómo se llama la obra?", punch:"El Horror Puntual"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve una reunión que podría haber sido un correo. ¿Cómo se llama la película?", punch:"Tiempo Perdido"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve a alguien leyendo términos y condiciones. ¿Cómo se llama la obra?", punch:"Nadie Hace Eso"},
+  {t:"telon", a:18, setup:"Se abre el telón y se ve a un hombre ordenando el garaje por tercera vez. ¿Cómo se llama la película?", punch:"La Procrastinación Productiva"},
+
+  {t:"animales", a:4, setup:"¿Qué le dice el cerdito al charco?", punch:"¡Aquí vengo, mi bañera favorita!"},
+  {t:"animales", a:8, setup:"¿Por qué el camello no se queja del desierto?", punch:"Porque siempre lleva sus reservas encima."},
+  {t:"animales", a:13, setup:"Mi perro se sienta cuando le digo 'siéntate'.", punch:"Es el único de la casa que me hace caso a la primera."},
+  {t:"animales", a:18, setup:"Dicen que los perros se parecen a sus dueños.", punch:"El mío duerme todo el día y come sin control, así que confirmo."},
+
+  {t:"escuela", a:8, setup:"¿Por qué la mochila siempre está cansada?", punch:"Porque carga con todos los problemas."},
+  {t:"escuela", a:13, setup:"Dije que iba a estudiar con tiempo este trimestre.", punch:"El tiempo pasó, yo no estudié, pero la intención fue preciosa."},
+
+  {t:"comida", a:8, setup:"¿Por qué la pasta nunca se estresa?", punch:"Porque siempre está al dente, ni un minuto más."},
+  {t:"comida", a:18, setup:"Abrí la nevera buscando inspiración.", punch:"Encontré tres salsas caducadas y una idea de pedir pizza."},
+
+  {t:"deportes", a:8, setup:"¿Por qué el portero llevaba guantes en verano?", punch:"Porque las manos frías paran mejor los balones calientes."},
+  {t:"deportes", a:18, setup:"Dicen que lo importante es participar.", punch:"Eso lo inventó alguien que nunca ganó nada."},
+
+  {t:"familia", a:8, setup:"¿Por qué el abuelo tiene siempre caramelos?", punch:"Porque es su forma secreta de ser el favorito."},
+  {t:"familia", a:18, setup:"Mis padres me llaman solo cuando algo se rompe.", punch:"Soy su soporte técnico gratuito de por vida."},
+
+  {t:"tecnologia", a:13, setup:"Mi teléfono se apaga al 20% de batería.", punch:"Tiene la misma resistencia que yo un lunes."},
+  {t:"tecnologia", a:18, setup:"Dicen que apagar y encender lo arregla todo.", punch:"Llevo años intentándolo conmigo mismo cada mañana."},
+
+  {t:"ciencia", a:8, setup:"¿Por qué el hielo es tan sociable?", punch:"Porque siempre rompe el hielo en las fiestas."},
+  {t:"ciencia", a:18, setup:"El café es una reacción química perfecta.", punch:"Convierte el sueño en decisiones cuestionables."},
+
+  {t:"musica", a:8, setup:"¿Por qué la guitarra fue al médico?", punch:"Porque tenía las cuerdas vocales tensas."},
+  {t:"musica", a:18, setup:"Pongo música para concentrarme.", punch:"Termino cantando y sin haber hecho nada."},
+
+  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe lleva cinturón?", punch:"Para que no se le caigan los superpoderes."},
+  {t:"superheroes", a:18, setup:"Mi verdadero superpoder es sobrevivir a la semana.", punch:"Cada viernes lo celebro como una victoria épica."},
+
+  {t:"viajes", a:8, setup:"¿Por qué el tren nunca llega tarde a la estación?", punch:"Porque siempre va sobre la vía correcta."},
+  {t:"viajes", a:18, setup:"Reservé un hotel con vistas al mar.", punch:"El mar estaba a cuarenta minutos en coche, pero se veía."},
+
+  {t:"otros", a:4, setup:"¿Qué hace una oreja en el hospital?", punch:"Espera a que la escuchen."},
+  {t:"otros", a:4, setup:"¿Qué le dice un cero a otro cero?", punch:"¡No somos nada!"},
+  {t:"otros", a:4, setup:"¿Qué hace un pez en el cine?", punch:"Ver una película de aleta-metraje."},
+  {t:"otros", a:4, setup:"¿Cuál es el colmo de un jardinero?", punch:"Que su novia se llame Rosa y lo deje plantado."},
+  {t:"otros", a:8, setup:"¿Qué le dijo el techo a la pared?", punch:"Sujétame que me caigo."},
+  {t:"otros", a:8, setup:"¿Cuál es el colmo de un electricista?", punch:"Que su mujer se llame Luz y sus hijos le sigan la corriente."},
+  {t:"otros", a:8, setup:"¿Qué hace un libro en la playa?", punch:"Toma el sol entre líneas."},
+  {t:"otros", a:8, setup:"¿Qué le dice un semáforo a otro semáforo?", punch:"No me mires que me estoy cambiando."},
+  {t:"otros", a:8, setup:"¿Qué le dice un reloj a otro reloj?", punch:"Ya nos dieron las mismas horas de siempre."},
+  {t:"otros", a:13, setup:"¿Cuál es el colmo de un calvo?", punch:"Que le tomen el pelo."},
+  {t:"otros", a:13, setup:"¿Qué le dice una pared a otra pared?", punch:"Nos vemos en la esquina."},
+  {t:"otros", a:13, setup:"¿Cuál es el colmo de un sastre?", punch:"Que le quede grande el trabajo."},
+  {t:"otros", a:13, setup:"Mi vecino toca la batería a las tres de la mañana.", punch:"Yo le respondo con la aspiradora a las seis."},
+  {t:"otros", a:13, setup:"¿Qué hace un espejo cuando está triste?", punch:"Refleja exactamente lo que siente."},
+  {t:"otros", a:18, setup:"Dicen que el dinero no da la felicidad.", punch:"Pero permite elegir la forma de estar triste."},
+  {t:"otros", a:18, setup:"Ayer llegué puntual a una cita.", punch:"Tuve que esperar tanto que se me quitaron las ganas de volver a intentarlo."},
+  {t:"otros", a:18, setup:"Mi terapeuta dice que hablo demasiado de mí.", punch:"Le dije que eso era justo lo que me preocupaba de mí."},
+  {t:"otros", a:18, setup:"Dicen que la paciencia es una virtud.", punch:"Llevo años esperando a que se me note."}
+];
+
+const AGE_GROUPS = [
+  {key:4, label:"4-7", desc:"peques"},
+  {key:8, label:"8-12", desc:"niños"},
+  {key:13, label:"13-17", desc:"adoles."},
+  {key:18, label:"18+", desc:"adultos"}
+];
+
+const CATS = [
+  {key:"todas", label:"Todas", icon:"🎉"},
+  {key:"animales", label:"Animales", icon:"🐶"},
+  {key:"escuela", label:"Escuela", icon:"🎒"},
+  {key:"comida", label:"Comida", icon:"🍕"},
+  {key:"deportes", label:"Deportes", icon:"⚽"},
+  {key:"familia", label:"Familia", icon:"👪"},
+  {key:"tecnologia", label:"Tecnología", icon:"💻"},
+  {key:"piratas", label:"Piratas", icon:"🏴‍☠️"},
+  {key:"ciencia", label:"Ciencia", icon:"🔬"},
+  {key:"musica", label:"Música", icon:"🎵"},
+  {key:"superheroes", label:"Superhéroes", icon:"🦸"},
+  {key:"viajes", label:"Viajes", icon:"✈️"},
+  {key:"telon", label:"Se abre el telón", icon:"🎭"},
+  {key:"otros", label:"Otros", icon:"✨"}
+];
+
+let state = {
+  age: 8,
+  cat: "todas",
+  current: null,
+  revealed: false,
+  favorites: [],
+  custom: [],
+  hidden: [],
+  pin: null,
+  maxAge: 18,
+  unlocked: false
+};
+
+function allJokes(){
+  return JOKES.concat(state.custom);
+}
+
+function ageBucketLabel(a){
+  const g = AGE_GROUPS.find(g=>g.key===a);
+  return g ? g.label + " años" : "";
+}
+
+function matches(joke){
+  const ageOk = joke.a <= state.age && (
+    state.age === 18 ? true :
+    (AGE_GROUPS.find(g=>g.key===state.age).key >= joke.a)
+  );
+  const catOk = state.cat === "todas" || joke.t === state.cat;
+  const notHidden = !state.hidden.includes(jokeKey(joke));
+  return ageOk && catOk && notHidden;
+}
+
+function pickJoke(){
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  const pool = allJokes().filter(matches);
+  if(pool.length === 0){ state.current = null; return; }
+  const idx = Math.floor(Math.random()*pool.length);
+  state.current = pool[idx];
+  state.revealed = false;
+}
+
+function ageLocked(key){
+  return state.pin && !state.unlocked && key > state.maxAge;
+}
+
+function renderAges(){
+  const el = document.getElementById('ages');
+  el.innerHTML = "";
+  AGE_GROUPS.forEach(g=>{
+    const locked = ageLocked(g.key);
+    const btn = document.createElement('div');
+    btn.className = 'age-btn' + (state.age===g.key ? ' active':'') + (locked ? ' locked':'');
+    btn.innerHTML = `<span class="yrs">${locked ? '🔒' : g.label}</span><span class="desc">${locked ? 'bloqueado' : g.desc}</span>`;
+    btn.onclick = ()=>{
+      if(ageLocked(g.key)){ askPin(g.key); return; }
+      state.age = g.key;
+      renderAges();
+      pickJoke();
+      renderJoke();
+    };
+    el.appendChild(btn);
+  });
+  renderLockBar();
+}
+
+function renderCats(){
+  const el = document.getElementById('cats');
+  el.innerHTML = "";
+  CATS.forEach(c=>{
+    const chip = document.createElement('div');
+    chip.className = 'cat-chip' + (c.key==='todas' ? ' todas':'') + (state.cat===c.key ? ' active':'');
+    chip.innerHTML = `<span class="ico">${c.icon}</span><span class="name">${c.label}</span>`;
+    chip.onclick = ()=>{
+      state.cat = c.key;
+      renderCats();
+      pickJoke();
+      renderJoke();
+    };
+    el.appendChild(chip);
+  });
+}
+
+async function loadHidden(){
+  try{
+    const v = await Store.get('chistes_ocultos');
+    state.hidden = v ? JSON.parse(v) : [];
+  }catch(e){
+    state.hidden = [];
+  }
+}
+
+async function saveHidden(){
+  try{
+    await Store.set('chistes_ocultos', JSON.stringify(state.hidden));
+  }catch(e){
+    console.error('No se pudo guardar la lista de ocultos', e);
+  }
+}
+
+async function loadPin(){
+  try{
+    const v = await Store.get('control_parental');
+    if(v){
+      const cfg = JSON.parse(v);
+      state.pin = cfg.pin || null;
+      state.maxAge = typeof cfg.maxAge === 'number' ? cfg.maxAge : 18;
+    }
+  }catch(e){ state.pin = null; }
+  if(ageLocked(state.age)) state.age = state.maxAge;
+}
+
+async function savePin(){
+  try{
+    await Store.set('control_parental', JSON.stringify({pin: state.pin, maxAge: state.maxAge}));
+  }catch(e){ console.error('No se pudo guardar el PIN', e); }
+}
+
+function askPin(targetAge){
+  const entered = prompt('Contenido bloqueado. Introduce el PIN de control parental:');
+  if(entered === null) return;
+  if(entered === state.pin){
+    state.unlocked = true;
+    if(targetAge) state.age = targetAge;
+    renderAges();
+    pickJoke();
+    renderJoke();
+  } else {
+    alert('PIN incorrecto.');
+  }
+}
+
+function renderLockBar(){
+  const bar = document.getElementById('lock-bar');
+  if(!bar) return;
+  if(!state.pin){
+    bar.innerHTML = `<span class="lock-txt">Sin control parental</span><button class="lock-btn" id="lock-set">🔒 Activar</button>`;
+    document.getElementById('lock-set').onclick = ()=>{
+      const p = prompt('Crea un PIN de 4 dígitos (solo tú debes saberlo):');
+      if(!p) return;
+      if(!/^\d{4}$/.test(p)){ alert('El PIN debe tener exactamente 4 dígitos.'); return; }
+      const lim = prompt('Edad máxima permitida sin PIN. Escribe 4, 8, 13 o 18:', '8');
+      const limN = parseInt(lim, 10);
+      if(![4,8,13,18].includes(limN)){ alert('Valor no válido.'); return; }
+      state.pin = p;
+      state.maxAge = limN;
+      state.unlocked = false;
+      if(state.age > limN) state.age = limN;
+      savePin();
+      renderAges();
+      pickJoke();
+      renderJoke();
+    };
+  } else {
+    const estado = state.unlocked ? 'desbloqueado' : 'activo';
+    bar.innerHTML = `<span class="lock-txt">🔒 Control parental ${estado} · hasta ${state.maxAge===18?'18+':state.maxAge+' años'}</span><button class="lock-btn" id="lock-off">${state.unlocked ? 'Bloquear' : 'Quitar'}</button>`;
+    document.getElementById('lock-off').onclick = ()=>{
+      if(state.unlocked){
+        state.unlocked = false;
+        if(state.age > state.maxAge) state.age = state.maxAge;
+        renderAges();
+        pickJoke();
+        renderJoke();
+        return;
+      }
+      const entered = prompt('Introduce el PIN para desactivar el control parental:');
+      if(entered === null) return;
+      if(entered !== state.pin){ alert('PIN incorrecto.'); return; }
+      state.pin = null;
+      state.unlocked = false;
+      savePin();
+      renderAges();
+    };
+  }
+}
+
+
+// Almacenamiento con respaldo: usa window.storage si existe,
+// si no localStorage (archivo abierto directamente), y si no, memoria.
+const Store = (function(){
+  const mem = {};
+  const hasArtifact = (typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+  let localOk = false;
+  try{
+    localStorage.setItem('__t','1'); localStorage.removeItem('__t'); localOk = true;
+  }catch(e){ localOk = false; }
+
+  return {
+    async get(key){
+      if(hasArtifact){
+        try{
+          const r = await window.storage.get(key, false);
+          if(r) return r.value;
+        }catch(e){ /* sigue a los respaldos */ }
+      }
+      if(localOk){
+        const v = localStorage.getItem(key);
+        if(v !== null) return v;
+      }
+      return (key in mem) ? mem[key] : null;
+    },
+    async set(key, value){
+      mem[key] = value;
+      if(hasArtifact){
+        try{ await window.storage.set(key, value, false); return true; }catch(e){ /* sigue */ }
+      }
+      if(localOk){
+        try{ localStorage.setItem(key, value); return true; }catch(e){ /* sigue */ }
+      }
+      return true;
+    }
+  };
+})();
+
+let voicesReady = false;
+let esVoice = null;
+
+function loadVoices(){
+  if(!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices();
+  if(vs && vs.length){
+    esVoice = vs.find(v=>/^es[-_]ES/i.test(v.lang))
+           || vs.find(v=>/^es/i.test(v.lang))
+           || null;
+    voicesReady = true;
+  }
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speakText(text, rate, onend, onfail){
+  const u = new SpeechSynthesisUtterance(text);
+  if(esVoice) u.voice = esVoice;
+  u.lang = esVoice ? esVoice.lang : 'es-ES';
+  u.rate = rate;
+  u.pitch = 1.05;
+  u.volume = 1;
+  let finished = false;
+  u.onend = ()=>{ finished = true; if(onend) onend(); };
+  u.onerror = ()=>{ finished = true; if(onfail) onfail(); };
+  speechSynthesis.speak(u);
+  // Algunos navegadores se quedan en pausa: reanudar por si acaso
+  setTimeout(()=>{ try{ if(speechSynthesis.paused) speechSynthesis.resume(); }catch(e){} }, 120);
+  // Si no arranca nada en 1.5s, avisamos
+  setTimeout(()=>{
+    if(!finished && !speechSynthesis.speaking && !speechSynthesis.pending){
+      if(onfail) onfail();
+    }
+  }, 1500);
+}
+
+function speakFailed(){
+  const b = document.getElementById('speak-btn');
+  if(b){
+    b.classList.remove('speaking');
+    b.innerHTML = '🔇 Sin voz disponible';
+    setTimeout(()=>{ const x=document.getElementById('speak-btn'); if(x) x.innerHTML='🔊 Escuchar'; }, 2500);
+  }
+}
+
+function speakItem(j, btn){
+  if(!('speechSynthesis' in window)) return;
+
+  // Si ya está hablando, este toque lo detiene
+  if(speechSynthesis.speaking || speechSynthesis.pending){
+    speechSynthesis.cancel();
+    document.querySelectorAll('.speak-btn.speaking').forEach(b=>b.classList.remove('speaking'));
+    return;
+  }
+
+  loadVoices();
+  const u = new SpeechSynthesisUtterance(j.setup + ' ... ' + j.punch);
+  if(esVoice) u.voice = esVoice;
+  u.lang = esVoice ? esVoice.lang : 'es-ES';
+  u.rate = 0.95;
+  u.pitch = 1.05;
+  u.volume = 1;
+
+  if(btn) btn.classList.add('speaking');
+  const done = ()=>{ if(btn) btn.classList.remove('speaking'); };
+  u.onend = done;
+  u.onerror = done;
+
+  speechSynthesis.speak(u);
+  setTimeout(()=>{ try{ if(speechSynthesis.paused) speechSynthesis.resume(); }catch(e){} }, 150);
+}
+
+function speakJoke(j){
+  if(!('speechSynthesis' in window)){
+    speakFailed();
+    return;
+  }
+
+  // Si ya está hablando, este toque sirve para parar
+  if(speechSynthesis.speaking || speechSynthesis.pending){
+    speechSynthesis.cancel();
+    const b = document.getElementById('speak-btn');
+    if(b) b.classList.remove('speaking');
+    return;
+  }
+
+  loadVoices();
+
+  // Destapamos el remate antes de hablar, para no tener que
+  // re-renderizar a mitad de la locución.
+  if(!state.revealed){
+    state.revealed = true;
+    renderJoke();
+  }
+
+  // IMPORTANTE: hablar de forma síncrona dentro del gesto del usuario.
+  // Un solo texto, con puntos suspensivos como pausa dramática.
+  const texto = j.setup + ' ... ' + j.punch;
+  const u = new SpeechSynthesisUtterance(texto);
+  if(esVoice) u.voice = esVoice;
+  u.lang = esVoice ? esVoice.lang : 'es-ES';
+  u.rate = 0.95;
+  u.pitch = 1.05;
+  u.volume = 1;
+
+  const btn = document.getElementById('speak-btn');
+  if(btn) btn.classList.add('speaking');
+
+  const done = ()=>{ const b = document.getElementById('speak-btn'); if(b) b.classList.remove('speaking'); };
+  u.onend = done;
+  u.onerror = ()=>{ done(); speakFailed(); };
+
+  speechSynthesis.speak(u);
+
+  // Chrome a veces arranca en pausa
+  setTimeout(()=>{ try{ if(speechSynthesis.paused) speechSynthesis.resume(); }catch(e){} }, 150);
+
+  // Si a los 2s no ha sonado nada, avisamos
+  setTimeout(()=>{
+    if(!speechSynthesis.speaking && !speechSynthesis.pending){
+      done();
+      speakFailed();
+    }
+  }, 2000);
+}
+
+function jokeKey(j){ return j.t + "|" + j.a + "|" + j.setup; }
+
+function renderJoke(){
+  const card = document.getElementById('joke-card');
+  const favBtn = document.getElementById('fav-btn');
+  if(!state.current){
+    card.innerHTML = `<p class="empty-msg">No hay chistes para esta combinación todavía. Prueba otra categoría o edad.</p>`;
+    favBtn.style.visibility = 'hidden';
+    return;
+  }
+  favBtn.style.visibility = 'visible';
+  const j = state.current;
+  const catInfo = CATS.find(c=>c.key===j.t);
+  let html = `<button class="joke-dismiss" id="dismiss-btn" title="Quitar este chiste">✕</button>`;
+  const esMio = state.custom.some(c => jokeKey(c) === jokeKey(j));
+  const esGuardado = state.favorites.some(f => jokeKey(f) === jokeKey(j));
+  html += `<span class="joke-tag">${catInfo ? catInfo.icon+' '+catInfo.label : j.t} · ${ageBucketLabel(state.age)}</span>`;
+  if(esMio) html += `<span class="joke-tag mine">✏️ Mío</span>`;
+  else if(esGuardado) html += `<span class="joke-tag saved">★ Guardado</span>`;
+  html += `<p class="joke-setup">${j.setup}</p>`;
+  if(state.revealed){
+    html += `<p class="joke-punchline">${j.punch}</p>`;
+  }
+  html += `<div class="card-actions">`;
+  if(!state.revealed){
+    html += `<button class="reveal-btn" id="reveal-btn">Ver remate</button>`;
+  }
+  html += `<button class="speak-btn" id="speak-btn" title="Leer en voz alta">🔊 Escuchar</button>`;
+  html += `</div>`;
+  card.innerHTML = html;
+  const rb = document.getElementById('reveal-btn');
+  if(rb){ rb.onclick = ()=>{ state.revealed = true; renderJoke(); }; }
+  document.getElementById('speak-btn').onclick = ()=> speakJoke(j);
+  document.getElementById('dismiss-btn').onclick = ()=>{
+    const key = jokeKey(j);
+    const isCustom = state.custom.some(c => jokeKey(c) === key);
+    if(isCustom){
+      state.custom = state.custom.filter(c => jokeKey(c) !== key);
+      saveCustom();
+      renderMine();
+    } else {
+      state.hidden.push(key);
+      saveHidden();
+    }
+    pickJoke();
+    renderJoke();
+  };
+
+  const isSaved = state.favorites.some(f => jokeKey(f) === jokeKey(j));
+  favBtn.classList.toggle('saved', isSaved);
+  favBtn.innerHTML = isSaved ? '★ Guardado' : '♡ Guardar';
+}
+
+async function loadFavorites(){
+  try{
+    const v = await Store.get('favoritos');
+    state.favorites = v ? JSON.parse(v) : [];
+  }catch(e){
+    state.favorites = [];
+  }
+  renderFavorites();
+}
+
+async function saveFavorites(){
+  try{
+    await Store.set('favoritos', JSON.stringify(state.favorites));
+  }catch(e){
+    console.error('No se pudo guardar', e);
+  }
+}
+
+function groupByCat(list){
+  const groups = {};
+  list.forEach(j=>{
+    if(!groups[j.t]) groups[j.t] = [];
+    groups[j.t].push(j);
+  });
+  return groups;
+}
+
+function renderJokeList(el, list, onRemove, emptyMsg, onEdit, variant){
+  if(list.length === 0){
+    el.innerHTML = `<p class="fav-empty">${emptyMsg}</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  const groups = groupByCat(list);
+  CATS.filter(c=>c.key!=='todas').forEach(c=>{
+    const items = groups[c.key];
+    if(!items || !items.length) return;
+    items.slice().reverse().forEach(j=>{
+      const item = document.createElement('div');
+      item.className = 'fav-item' + (variant ? ' ' + variant : '');
+      let abierto = false;
+
+      const pinta = ()=>{
+        const editBtn = onEdit ? `<button class="item-btn edit" title="Editar">✎</button>` : '';
+        item.innerHTML =
+          `<div class="item-head">` +
+            `<span class="item-cat">${c.icon} ${c.label}</span>` +
+            `<div class="item-btns">${editBtn}<button class="item-btn remove" title="Quitar">✕</button></div>` +
+          `</div>` +
+          `<p class="joke-setup">${j.setup}</p>` +
+          (abierto ? `<p class="joke-punchline">${j.punch}</p>` : '') +
+          `<div class="card-actions">` +
+            (abierto ? '' : `<button class="reveal-btn item-reveal">Ver remate</button>`) +
+            `<button class="speak-btn item-listen">🔊 Escuchar</button>` +
+          `</div>`;
+
+        item.querySelector('.item-btn.remove').onclick = ()=> onRemove(j);
+        const ed = item.querySelector('.item-btn.edit');
+        if(ed) ed.onclick = ()=> onEdit(j);
+        const rv = item.querySelector('.item-reveal');
+        if(rv) rv.onclick = ()=>{ abierto = true; pinta(); };
+        item.querySelector('.item-listen').onclick = (ev)=>{
+          abierto = true;
+          pinta();
+          speakItem(j, item.querySelector('.item-listen'));
+        };
+      };
+
+      pinta();
+      el.appendChild(item);
+    });
+  });
+}
+
+function renderFavorites(){
+  renderJokeList(
+    document.getElementById('fav-list'),
+    state.favorites,
+    (j)=>{
+      state.favorites = state.favorites.filter(f => jokeKey(f) !== jokeKey(j));
+      saveFavorites();
+      renderFavorites();
+      renderJoke();
+    },
+    'Aún no guardaste ningún chiste. Toca "Guardar" en el que te haga reír.'
+  );
+}
+
+function populateFormSelects(){
+  const catSel = document.getElementById('f-cat');
+  catSel.innerHTML = "";
+  CATS.filter(c=>c.key!=="todas").forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = c.icon + " " + c.label;
+    catSel.appendChild(opt);
+  });
+  const ageSel = document.getElementById('f-age');
+  ageSel.innerHTML = "";
+  AGE_GROUPS.forEach(g=>{
+    const opt = document.createElement('option');
+    opt.value = g.key;
+    opt.textContent = g.label + " años (" + g.desc + ")";
+    ageSel.appendChild(opt);
+  });
+}
+
+async function loadCustom(){
+  try{
+    const v = await Store.get('chistes_propios');
+    state.custom = v ? JSON.parse(v) : [];
+  }catch(e){
+    state.custom = [];
+  }
+  renderMine();
+}
+
+async function saveCustom(){
+  try{
+    await Store.set('chistes_propios', JSON.stringify(state.custom));
+  }catch(e){
+    console.error('No se pudo guardar el chiste', e);
+  }
+}
+
+function renderMine(){
+  renderJokeList(
+    document.getElementById('mine-list'),
+    state.custom,
+    (j)=>{
+      state.custom = state.custom.filter(c => jokeKey(c) !== jokeKey(j));
+      saveCustom();
+      renderMine();
+    },
+    'Todavía no agregaste ningún chiste tuyo.',
+    startEdit,
+    'mine'
+  );
+}
+
+let editingKey = null;
+
+function startEdit(j){
+  editingKey = jokeKey(j);
+  document.getElementById('f-setup').value = j.setup;
+  document.getElementById('f-punch').value = j.punch;
+  document.getElementById('f-cat').value = j.t;
+  document.getElementById('f-age').value = String(j.a);
+  document.getElementById('f-save').textContent = 'Guardar cambios';
+  document.getElementById('add-toggle-btn').textContent = '✏️ Editando un chiste tuyo';
+  document.getElementById('add-form').classList.add('open');
+  document.getElementById('add-form').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetForm(){
+  editingKey = null;
+  document.getElementById('f-setup').value = "";
+  document.getElementById('f-punch').value = "";
+  document.getElementById('f-save').textContent = 'Guardar chiste';
+  document.getElementById('add-toggle-btn').textContent = '✏️ Agregar mi propio chiste';
+  document.getElementById('form-error').classList.remove('show');
+  document.getElementById('add-form').classList.remove('open');
+}
+
+const addToggleBtn = document.getElementById('add-toggle-btn');
+const addForm = document.getElementById('add-form');
+const formError = document.getElementById('form-error');
+
+addToggleBtn.onclick = ()=>{
+  if(addForm.classList.contains('open')){ resetForm(); return; }
+  addForm.classList.add('open');
+};
+
+document.getElementById('f-cancel').onclick = ()=> resetForm();
+
+document.getElementById('f-save').onclick = ()=>{
+  const setup = document.getElementById('f-setup').value.trim();
+  const punch = document.getElementById('f-punch').value.trim();
+  if(!setup || !punch){
+    formError.classList.add('show');
+    return;
+  }
+  formError.classList.remove('show');
+  const t = document.getElementById('f-cat').value;
+  const a = parseInt(document.getElementById('f-age').value, 10);
+
+  if(editingKey){
+    const i = state.custom.findIndex(c => jokeKey(c) === editingKey);
+    if(i !== -1) state.custom[i] = {t, a, setup, punch};
+    // si el chiste editado era el que se muestra, refrescarlo
+    if(state.current && jokeKey(state.current) === editingKey){
+      state.current = {t, a, setup, punch};
+      renderJoke();
+    }
+  } else {
+    state.custom.push({t, a, setup, punch});
+  }
+
+  saveCustom();
+  renderMine();
+  resetForm();
+};
+
+document.getElementById('new-joke-btn').onclick = ()=>{
+  pickJoke();
+  renderJoke();
+};
+
+document.getElementById('fav-btn').onclick = ()=>{
+  if(!state.current) return;
+  const key = jokeKey(state.current);
+  const already = state.favorites.some(f => jokeKey(f) === key);
+  if(already){
+    state.favorites = state.favorites.filter(f => jokeKey(f) !== key);
+  } else {
+    state.favorites.push(state.current);
+  }
+  saveFavorites();
+  renderFavorites();
+  renderJoke();
+};
+
+renderAges();
+renderCats();
+populateFormSelects();
+Promise.all([loadHidden(), loadCustom(), loadPin()]).then(()=>{
+  renderAges();
+  renderMine();
+  pickJoke();
+  renderJoke();
+});
+loadFavorites();
+</script>
+
+</body>
+</html>

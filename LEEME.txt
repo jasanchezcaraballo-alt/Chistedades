@@ -1,0 +1,46 @@
+CHISTEDADES
+========
+
+CONTENIDO
+---------
+index.html        La app completa (funciona sola, sin internet)
+manifest.json     Para instalarla como app en el móvil
+icono-192.png     Icono 192x192
+icono-512.png     Icono 512x512
+icono-1024.png    Icono 1024x1024 (para subir a Google Play / App Store)
+
+
+CÓMO USARLA
+-----------
+1. Abre index.html en cualquier navegador (Chrome, Safari, Firefox).
+2. En Android: menú de Chrome -> "Añadir a pantalla de inicio".
+   En iPhone: botón compartir -> "Añadir a pantalla de inicio".
+   Así queda con tu icono, como una app normal.
+
+
+QUÉ INCLUYE
+-----------
+- 580 chistes en 12 categorías
+- Filtro por edad: 4-7, 8-12, 13-17 y 18+
+- Control parental con PIN de 4 dígitos
+- Añadir tus propios chistes (salen mezclados con los demás)
+- Guardar favoritos y descartar los que no te gusten con la X
+- Botón para escuchar el chiste en voz alta
+
+
+NOTAS
+-----
+- Los datos (tus chistes, favoritos, PIN) se guardan en el propio
+  dispositivo. Si borras los datos del navegador, se pierden.
+- El PIN es un candado sencillo, no seguridad real. Si publicas la
+  app en una tienda, conviene guardarlo cifrado.
+- La voz usa las voces del sistema. Si no suena, revisa que tengas
+  instaladas voces en español:
+  Ajustes -> Idiomas -> Salida de texto a voz.
+
+
+PARA PUBLICARLA EN UNA TIENDA
+------------------------------
+Este es un prototipo web. Para llevarlo a Google Play o App Store
+hay que empaquetarlo (con Capacitor, Cordova o similar) o rehacerlo
+en React Native / Flutter. El icono de 1024x1024 ya está listo para eso.
