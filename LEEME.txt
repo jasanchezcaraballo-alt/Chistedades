@@ -20,7 +20,7 @@ CÓMO USARLA
 
 QUÉ INCLUYE
 -----------
-- 580 chistes en 12 categorías
+- Catálogo propio: los chistes los añades tú
 - Filtro por edad: 4-7, 8-12, 13-17 y 18+
 - Control parental con PIN de 4 dígitos
 - Añadir tus propios chistes (salen mezclados con los demás)

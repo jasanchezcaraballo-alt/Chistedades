@@ -367,7 +367,7 @@
     background:transparent;
     color:var(--ink);
   }
-  #add-form{
+  #add-form, #bulk-form, #send-form{
     display:none;
     margin-top:12px;
     background:var(--card);
@@ -375,7 +375,7 @@
     border-radius:14px;
     padding:16px;
   }
-  #add-form.open{display:block;}
+  #add-form.open, #bulk-form.open, #send-form.open{display:block;}
   .field{margin-bottom:12px;}
   .field label{
     display:block;
@@ -468,6 +468,50 @@
         <button class="btn" id="f-cancel">Cancelar</button>
       </div>
     </div>
+
+    <button class="add-toggle" id="send-btn" style="margin-top:10px;">📧 Enviar un chiste al creador</button>
+    <div id="send-form">
+      <p style="color:#fff;opacity:.85;font-size:15px;margin:0 0 10px;">Escribe tu chiste y se abrirá tu correo con el mensaje ya preparado. Si me gusta, lo subo a la app.</p>
+      <div class="field">
+        <label for="s-setup">Planteamiento</label>
+        <textarea id="s-setup" placeholder="¿Qué le dice...?"></textarea>
+      </div>
+      <div class="field">
+        <label for="s-punch">Remate</label>
+        <textarea id="s-punch" placeholder="La respuesta graciosa"></textarea>
+      </div>
+      <p class="form-error" id="send-error">Completa el planteamiento y el remate.</p>
+      <div class="form-actions">
+        <button class="btn primary" id="s-send">Abrir correo</button>
+        <button class="btn" id="s-cancel">Cancelar</button>
+      </div>
+    </div>
+
+    <button class="add-toggle" id="export-btn" style="margin-top:10px;">📤 Exportar mis chistes (copia de seguridad)</button>
+    <textarea id="export-out" readonly style="display:none;width:100%;min-height:170px;margin-top:10px;padding:12px;font-size:15px;background:#241740;color:#FFFFFF;border:2px solid var(--orange);border-radius:10px;"></textarea>
+
+    <button class="add-toggle" id="bulk-toggle-btn" style="margin-top:10px;">📋 Pegar muchos de golpe</button>
+    <div id="bulk-form">
+      <div class="field">
+        <label for="b-text">Un chiste por línea, con | entre pregunta y remate</label>
+        <textarea id="b-text" placeholder="¿Qué hace un perro con un taladro? | Taladrando&#10;¿Cuál es el colmo de un calvo? | Que le tomen el pelo" style="min-height:170px;"></textarea>
+      </div>
+      <p class="form-error" id="bulk-error">No he encontrado ningún chiste válido.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="b-cat">Categoría</label>
+          <select id="b-cat"></select>
+        </div>
+        <div class="field">
+          <label for="b-age">Edad mínima</label>
+          <select id="b-age"></select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" id="b-save">Importar</button>
+        <button class="btn" id="b-cancel">Cancelar</button>
+      </div>
+    </div>
   </section>
 
   <section id="mine-section" class="block">
@@ -483,730 +527,145 @@
 
 <script>
 const JOKES = [
-  {t:"animales", a:4, setup:"¿Qué le dice un pez a otro pez?", punch:"¡Nada nada, nos vemos!"},
-  {t:"animales", a:4, setup:"¿Cómo se llama el pez más famoso?", punch:"¡Pez-cador de estrellas!"},
-  {t:"animales", a:4, setup:"¿Qué hace una abeja en el gimnasio?", punch:"¡Zum-ba!"},
-  {t:"animales", a:8, setup:"¿Por qué los pájaros no usan Facebook?", punch:"Porque ya tienen Twitter."},
-  {t:"animales", a:8, setup:"¿Qué le dijo un gusano a otro gusano?", punch:"Voy arrastrándome de la envidia."},
-  {t:"animales", a:8, setup:"¿Cuál es el animal más antiguo?", punch:"La cebra, porque todavía está en blanco y negro."},
-  {t:"animales", a:13, setup:"Mi perro cree que es programador.", punch:"Se pasa el día ladrando en bucle."},
-  {t:"animales", a:13, setup:"¿Por qué el búho es el ave más segura de sí misma?", punch:"Porque no le importa un búho lo que digan."},
-  {t:"animales", a:18, setup:"Adopté un gato para tener compañía.", punch:"Ahora tengo la compañía de alguien que me ignora profesionalmente."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice un libro a otro libro?", punch:"¡Nos vemos en el índice!"},
-  {t:"escuela", a:4, setup:"¿Cuál es el colmo de un maestro de matemáticas?", punch:"¡No contar con nadie!"},
-  {t:"escuela", a:8, setup:"¿Por qué el libro de matemáticas está triste?", punch:"Porque tiene demasiados problemas."},
-  {t:"escuela", a:8, setup:"Profesor: ¿Por qué llegas tarde?", punch:"Alumno: Había un cartel que decía 'Escuela, despacio'."},
-  {t:"escuela", a:13, setup:"¿Qué le dice un examen a un estudiante?", punch:"Si me estudias, no te sorprendo."},
-  {t:"escuela", a:13, setup:"Mi profesor de historia dice que vivo en el pasado.", punch:"Le dije que eso era imposible de presente."},
-  {t:"escuela", a:18, setup:"Terminé la carrera y me dieron un título.", punch:"Ahora solo me falta que alguien me dé trabajo."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice una papa a otra papa?", punch:"¡Te ves puré-tty bien hoy!"},
-  {t:"comida", a:4, setup:"¿Cómo se despiden dos tomates?", punch:"¡Nos vemos en la ensalada!"},
-  {t:"comida", a:8, setup:"¿Qué hace una fresa cuando ve a otra fresa?", punch:"La saluda con mucha 'fresa-cura'."},
-  {t:"comida", a:8, setup:"¿Cuál es el colmo de un panadero?", punch:"Ganarse el pan con el sudor de su frente y aun así estar sin un duro."},
-  {t:"comida", a:13, setup:"Estoy a dieta desde el lunes.", punch:"El lunes que viene, probablemente."},
-  {t:"comida", a:13, setup:"¿Por qué el café presentó una denuncia?", punch:"Porque lo estaban moliendo a diario."},
-  {t:"comida", a:18, setup:"Mi relación con la comida es complicada.", punch:"Ella siempre está ahí para mí, yo nunca estoy a dieta."},
-
-  {t:"deportes", a:4, setup:"¿Por qué el balón fue al médico?", punch:"Porque se sentía des-inflado."},
-  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un futbolista?", punch:"Tener un lío de pies a cabeza."},
-  {t:"deportes", a:8, setup:"¿Qué le dijo un campo de fútbol a otro?", punch:"Nos vemos en la próxima jugada."},
-  {t:"deportes", a:13, setup:"Empecé a correr todos los días.", punch:"Corro a la cocina, corro al sofá."},
-  {t:"deportes", a:13, setup:"¿Por qué el boxeador llevó un paraguas?", punch:"Por si le caían golpes de suerte."},
-  {t:"deportes", a:18, setup:"Me inscribí al gimnasio en enero.", punch:"Mi membresía hace más ejercicio que yo."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice un hijo pastel a su papá pastel?", punch:"¡Papá, eres el más dulce!"},
-  {t:"familia", a:4, setup:"Mamá, ¿por qué el sol es amarillo?", punch:"Para que lo puedas encontrar rápido en el cielo."},
-  {t:"familia", a:8, setup:"¿Por qué los hermanos siempre pelean por el control remoto?", punch:"Porque nadie quiere cambiar de canal en la vida."},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de electricistas?", punch:"Que todos tengan buena conexión."},
-  {t:"familia", a:13, setup:"Mis padres dicen que hablo mucho por teléfono.", punch:"Es que mis amigos también tienen mucho que no decir."},
-  {t:"familia", a:18, setup:"Ser adulto es genial.", punch:"Dijo nadie después de pagar las facturas."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué la computadora fue al médico?", punch:"Porque tenía un virus."},
-  {t:"tecnologia", a:8, setup:"¿Cuál es el colmo de un router?", punch:"Perder la señal de su propia familia."},
-  {t:"tecnologia", a:13, setup:"Mi contraseña es 'incorrecta'.", punch:"Así, cuando la olvido, la computadora me dice: tu contraseña es incorrecta."},
-  {t:"tecnologia", a:13, setup:"¿Por qué el programador se quedó sin batería?", punch:"Porque dejó todo corriendo en segundo plano."},
-  {t:"tecnologia", a:18, setup:"Mi código funcionó a la primera.", punch:"Dije eso mismo en mis sueños esta noche."},
-
-  {t:"piratas", a:4, setup:"¿Cómo se llama el pirata más pequeño?", punch:"¡Media Pinta!"},
-  {t:"piratas", a:4, setup:"¿Qué le dice un pirata a otro en su cumpleaños?", punch:"¡Feliz cumple-arrr!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata no sabía el alfabeto?", punch:"Porque siempre se perdía en el mar (C)."},
-  {t:"piratas", a:13, setup:"El pirata quería jubilarse.", punch:"Pero dijo que aún tenía tesoros por cobrar."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice una vaca a otra vaca?", punch:"¡Muuu buenos días!"},
-  {t:"animales", a:4, setup:"¿Cómo se dice gato en inglés?", punch:"Cat. ¿Y en japonés? También suena raro, pero igual maúlla."},
-  {t:"animales", a:8, setup:"¿Por qué la jirafa tiene el cuello tan largo?", punch:"Porque tiene la cabeza muy lejos de los pies."},
-  {t:"animales", a:8, setup:"¿Qué le dijo un caracol a otro caracol?", punch:"Vamos rápido, que se hace tarde... en tres días."},
-  {t:"animales", a:13, setup:"Mi hámster hace ejercicio todo el día.", punch:"Corre en su rueda y no llega a ningún lado, como yo con mis metas."},
-  {t:"animales", a:13, setup:"¿Por qué los delfines nadan siempre en el mar?", punch:"Porque si nadaran en la tierra se vería raro."},
-  {t:"animales", a:18, setup:"Tengo un perro guardián.", punch:"Guarda la casa, mis zapatillas y toda mi paciencia."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice un lápiz a otro lápiz?", punch:"¡Qué punta tienes hoy!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un bibliotecario?", punch:"Que le quiten el libro de la palabra."},
-  {t:"escuela", a:8, setup:"¿Por qué la tarea nunca llega sola a casa?", punch:"Porque siempre viene acompañada de excusas."},
-  {t:"escuela", a:13, setup:"Estudié toda la noche para el examen.", punch:"Y a la mañana el examen estudió toda mi cara de sueño."},
-  {t:"escuela", a:18, setup:"En la universidad aprendí a administrar mi tiempo.", punch:"Ahora sé exactamente cuánto tardo en procrastinar."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice un huevo a una sartén?", punch:"¡Me tienes frito!"},
-  {t:"comida", a:8, setup:"¿Cuál es el colmo de un cocinero?", punch:"Tener un sartén por el mango y aun así quemarse."},
-  {t:"comida", a:8, setup:"¿Qué hace una pizza cuando tiene calor?", punch:"Se derrite de queso."},
-  {t:"comida", a:13, setup:"Fui al gimnasio y luego comí una pizza entera.", punch:"El balance es lo importante."},
-  {t:"comida", a:18, setup:"Cociné para toda la semana el domingo.", punch:"El lunes ya pedí comida a domicilio."},
-
-  {t:"deportes", a:4, setup:"¿Por qué la pelota de tenis fue al doctor?", punch:"Porque se sentía un poco pachucha."},
-  {t:"deportes", a:8, setup:"¿Qué le dice un arquero a la pelota?", punch:"A mí no me la metes."},
-  {t:"deportes", a:13, setup:"Mi plan de entrenamiento es simple.", punch:"Pensar mucho en hacer ejercicio."},
-  {t:"deportes", a:18, setup:"Compré ropa deportiva nueva.", punch:"Ya cumplí el 90% de mi propósito de año nuevo."},
-
-  {t:"familia", a:4, setup:"¿Por qué el bebé pastel lloraba?", punch:"Porque su mamá lo estaba regañando... con crema."},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de relojeros?", punch:"Que sus hijos siempre den la hora exacta."},
-  {t:"familia", a:13, setup:"Mi hermano dice que soy adoptado.", punch:"Yo le digo que por eso tengo mejor gusto musical."},
-  {t:"familia", a:18, setup:"Mis padres me preguntan cuándo voy a sentar cabeza.", punch:"Les digo que la cabeza ya la tengo sentada, lo demás está en proceso."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué el teléfono usaba lentes?", punch:"Porque había perdido su contacto."},
-  {t:"tecnologia", a:13, setup:"Actualicé mi teléfono y ahora todo es distinto.", punch:"Menos mi forma de perder el cargador."},
-  {t:"tecnologia", a:18, setup:"Mi inteligencia artificial favorita me entiende mejor que la gente.", punch:"Aunque a veces también se equivoca con confianza absoluta."},
-
-  {t:"piratas", a:4, setup:"¿Qué le regala un pirata a su novia?", punch:"¡Un anillo de oro y un mapa a su corazón!"},
-  {t:"piratas", a:8, setup:"¿Cómo se llama un pirata que no encuentra el tesoro?", punch:"Desorientado, arrr."},
-  {t:"piratas", a:13, setup:"El loro del pirata repetía todo.", punch:"Hasta que el pirata le dijo un secreto y ya nadie lo quiso invitar a fiestas."},
-
-  {t:"ciencia", a:8, setup:"¿Por qué el átomo estaba triste?", punch:"Porque había perdido un electrón y ya no era el mismo."},
-  {t:"ciencia", a:8, setup:"¿Qué le dijo un imán a otro imán?", punch:"Me siento muy atraído hacia ti."},
-  {t:"ciencia", a:13, setup:"¿Por qué los químicos no confían en los átomos?", punch:"Porque forman todo."},
-  {t:"ciencia", a:13, setup:"¿Cuál es el colmo de un astrónomo?", punch:"No ver estrellas ni cuando le pegan un golpe."},
-  {t:"ciencia", a:18, setup:"Estudié física cuántica para entender el universo.", punch:"Ahora ni siquiera entiendo por qué el wifi se corta."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice una guitarra a otra guitarra?", punch:"¡Qué bien afinada estás hoy!"},
-  {t:"musica", a:8, setup:"¿Cuál es el colmo de un músico?", punch:"Tener una nota pero no poder cobrarla en el banco."},
-  {t:"musica", a:13, setup:"Mi banda favorita canceló el concierto.", punch:"Dijeron que necesitaban un descanso... de mí cantando sus canciones."},
-  {t:"musica", a:18, setup:"Toco la guitarra desde hace diez años.", punch:"Todavía solo sé tres acordes, pero los toco con mucho sentimiento."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice un pollito a su mamá?", punch:"¡Pío pío, te quiero mucho!"},
-  {t:"animales", a:4, setup:"¿Cómo saluda un elefante?", punch:"Con la trompa en alto, ¡hola!"},
-  {t:"animales", a:4, setup:"¿Qué hace una oveja en la peluquería?", punch:"Se hace un corte muy lanudo."},
-  {t:"animales", a:8, setup:"¿Por qué el pingüino lleva siempre esmoquin?", punch:"Porque nunca sabe cuándo irá a una fiesta elegante."},
-  {t:"animales", a:8, setup:"¿Qué le dice un tiburón a otro tiburón?", punch:"Nada personal, solo tengo hambre."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de una tortuga?", punch:"Llegar siempre tarde a su propia carrera."},
-  {t:"animales", a:13, setup:"Mi gato me mira como si supiera todos mis secretos.", punch:"Y probablemente los está guardando para chantajearme."},
-  {t:"animales", a:13, setup:"Los flamencos duermen parados en una pata.", punch:"Yo no puedo ni dormir con las dos puestas en la cama."},
-  {t:"animales", a:18, setup:"Los perros mueven la cola cuando están felices.", punch:"Yo muevo el carrito del súper cuando veo ofertas."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice la mochila al cuaderno?", punch:"¡Súbete, que ya nos vamos a clase!"},
-  {t:"escuela", a:4, setup:"¿Por qué el número 6 le tenía miedo al 7?", punch:"Porque el 7 se comió al 8... ¡nueve!"},
-  {t:"escuela", a:8, setup:"¿Qué le dice un pizarrón a otro pizarrón?", punch:"Tengo la sensación de que me estás borrando la espalda."},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un profesor de geografía?", punch:"Perderse yendo a su propia casa."},
-  {t:"escuela", a:13, setup:"Me preguntaron cuál era mi materia favorita.", punch:"Dije recreo, y me pusieron falta por payasadas."},
-  {t:"escuela", a:13, setup:"El examen sorpresa no me sorprendió.", punch:"Ya sabía que no había estudiado nada."},
-  {t:"escuela", a:18, setup:"Fui a la reunión de ex alumnos.", punch:"Y me di cuenta de que sigo debiendo la biblioteca."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice un plátano a otro plátano?", punch:"¡Nos vemos en el frutero!"},
-  {t:"comida", a:4, setup:"¿Cómo se llama el rey de las verduras?", punch:"El brócoli-rey."},
-  {t:"comida", a:8, setup:"¿Por qué el chocolate fue al psicólogo?", punch:"Porque tenía demasiadas capas."},
-  {t:"comida", a:8, setup:"¿Cuál es el colmo de un heladero?", punch:"Que le den la espalda cuando hace más calor."},
-  {t:"comida", a:13, setup:"Dije que iba a cocinar sano toda la semana.", punch:"El martes ya pedí hamburguesa doble."},
-  {t:"comida", a:13, setup:"¿Qué le dijo la sal al azúcar?", punch:"Contigo la vida es más dulce, conmigo más interesante."},
-  {t:"comida", a:18, setup:"Mi presupuesto para comer afuera es ilimitado.", punch:"Mientras mi cuenta bancaria no se entere."},
-
-  {t:"deportes", a:4, setup:"¿Por qué el lápiz jugó fútbol?", punch:"Porque quería marcar la cancha."},
-  {t:"deportes", a:8, setup:"¿Qué le dice un jugador de básquet a la pelota?", punch:"Confía en mí, esta vez sí entra."},
-  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un ciclista?", punch:"Que le pongan una multa por ir sobre ruedas."},
-  {t:"deportes", a:13, setup:"Mi entrenador dice que tengo mucho potencial.", punch:"El problema es que sigue sin usarse."},
-  {t:"deportes", a:13, setup:"¿Por qué el nadador siempre llega temprano?", punch:"Porque se tira de cabeza a todo."},
-  {t:"deportes", a:18, setup:"Me anoté a una maratón.", punch:"La de ver series, la corro sin problema."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice un huevo a su papá huevo?", punch:"¡Te quiero un montón, cascarón!"},
-  {t:"familia", a:4, setup:"¿Por qué la abuela lleva galletas en la cartera?", punch:"Por si algún nieto aparece con hambre."},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de jardineros?", punch:"Que sus problemas siempre florezcan."},
-  {t:"familia", a:8, setup:"Mi hermano menor dice que yo mando en la casa.", punch:"Mando los mensajes que mamá me pide reenviar."},
-  {t:"familia", a:13, setup:"Mis papás dicen que estoy en la edad difícil.", punch:"Yo digo que ellos están en la edad de no entender nada."},
-  {t:"familia", a:18, setup:"En las reuniones familiares siempre preguntan lo mismo.", punch:"Cuándo me caso, cuándo tengo hijos y si ya comí."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué la impresora no tenía amigos?", punch:"Porque siempre se atascaba en el momento importante."},
-  {t:"tecnologia", a:8, setup:"¿Qué le dice un mouse a otro mouse?", punch:"Hazme clic si me quieres."},
-  {t:"tecnologia", a:13, setup:"Mi celular tiene el 1% de batería.", punch:"Al igual que mis ganas de responder mensajes."},
-  {t:"tecnologia", a:13, setup:"¿Por qué el wifi de casa se llama 'no lo intentes'?", punch:"Para desanimar a los vecinos desde el nombre."},
-  {t:"tecnologia", a:18, setup:"Tengo veinte pestañas abiertas en el navegador.", punch:"Es mi forma personal de multitarea con ansiedad."},
-
-  {t:"piratas", a:4, setup:"¿Qué usa un pirata para escribir?", punch:"¡Una pluma de loro!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata compró un GPS?", punch:"Porque su mapa del tesoro tenía demasiados errores."},
-  {t:"piratas", a:13, setup:"El capitán pirata perdió las llaves del barco.", punch:"Tuvo que quedarse a la deriva mientras las buscaba."},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice el sol a la tierra?", punch:"¡No te preocupes, siempre voy a brillar para ti!"},
-  {t:"ciencia", a:8, setup:"¿Por qué la luna no le pide dinero prestado al sol?", punch:"Porque ya está siempre en fase de cambio."},
-  {t:"ciencia", a:13, setup:"¿Qué le dijo un volcán a otro volcán?", punch:"Te extraño lava."},
-  {t:"ciencia", a:18, setup:"Estudié biología para entender la vida.", punch:"Y terminé entendiendo solo el ciclo del café."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice un tambor a otro tambor?", punch:"¡Nos vemos en el redoble!"},
-  {t:"musica", a:8, setup:"¿Cuál es el colmo de un cantante?", punch:"Perder la voz justo antes del concierto."},
-  {t:"musica", a:13, setup:"Mi playlist tiene canciones de hace veinte años.", punch:"Dicen que soy un alma vieja, yo digo que tengo buen gusto."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice un caballo a otro caballo?", punch:"¡Vamos al trote, que se hace tarde!"},
-  {t:"animales", a:8, setup:"¿Por qué la araña no usa computadora?", punch:"Porque prefiere tejer su propia red."},
-  {t:"animales", a:13, setup:"Mi loro repite todo lo que digo.", punch:"Ahora tengo un testigo de todas mis malas decisiones."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice la tiza al pizarrón?", punch:"¡Contigo siempre dejo huella!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno puntual?", punch:"Llegar antes que el profesor y quedarse esperando."},
-  {t:"escuela", a:13, setup:"Mi compañero copió en el examen.", punch:"Hasta copió mal mi nombre en la hoja."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice una manzana a otra manzana?", punch:"¡Qué bien te ves hoy, jugosa!"},
-  {t:"comida", a:8, setup:"¿Por qué el pan no gana discusiones?", punch:"Porque siempre se pone tostado."},
-  {t:"comida", a:13, setup:"Prometí no comer entre comidas.", punch:"Técnicamente, ahora como durante todas las comidas seguidas."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la portería al balón?", punch:"¡Entra cuando quieras, aquí te espero!"},
-  {t:"deportes", a:8, setup:"¿Por qué el corredor llevaba un reloj roto?", punch:"Porque decía que el tiempo no le importaba."},
-  {t:"deportes", a:18, setup:"Compré pesas para hacer ejercicio en casa.", punch:"Ahora las uso de sostén de libros."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice un ratón a otro ratón?", punch:"¡Vamos a buscar queso, corre corre!"},
-  {t:"animales", a:4, setup:"¿Cómo se saludan dos abejas?", punch:"¡Hola, zumbido amigo!"},
-  {t:"animales", a:8, setup:"¿Por qué el camaleón no juega a las escondidas?", punch:"Porque siempre lo encuentran, pero nunca lo ven venir."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de un canguro?", punch:"Que se le pierdan las llaves en su propio bolsillo."},
-  {t:"animales", a:13, setup:"Mi tortuga es más rápida que yo los lunes.", punch:"Ella al menos tiene una excusa de nacimiento."},
-  {t:"animales", a:18, setup:"Tengo un pez de mascota.", punch:"Es la relación más tranquila que he tenido en años."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el recreo a la clase?", punch:"¡Nos vemos en diez minutos, aguanta!"},
-  {t:"escuela", a:8, setup:"¿Por qué la regla se sentía importante?", punch:"Porque siempre tenía la razón, medida por medida."},
-  {t:"escuela", a:13, setup:"El profesor dijo que el celular distrae.", punch:"Se lo dije a mi celular pero no me contestó, estaba distraído."},
-  {t:"escuela", a:18, setup:"Mi tesis tiene doscientas páginas.", punch:"Y todavía nadie las va a leer completas, ni yo."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice el helado al sol?", punch:"¡No te acerques tanto, que me derrito de nervios!"},
-  {t:"comida", a:8, setup:"¿Cuál es el colmo de una galleta?", punch:"Que la mojen y se deshaga toda la personalidad."},
-  {t:"comida", a:13, setup:"Prometí comer solo ensaladas este mes.", punch:"La ensalada de papas cuenta, ¿no?"},
-  {t:"comida", a:18, setup:"Me encanta cocinar los domingos.", punch:"Los otros seis días amo pedir comida."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice el silbato al árbitro?", punch:"¡Cuenta conmigo, yo aviso cuando algo pasa!"},
-  {t:"deportes", a:8, setup:"¿Por qué el corredor de maratón lleva reloj?", punch:"Para saber cuánto falta para arrepentirse de correr."},
-  {t:"deportes", a:13, setup:"Empecé yoga para relajarme.", punch:"Ahora me estreso pensando en si hago bien la postura."},
-
-  {t:"familia", a:4, setup:"¿Por qué el abuelo siempre cuenta la misma historia?", punch:"Porque es tan buena que hay que escucharla dos veces."},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de músicos?", punch:"Que en cada pelea haya siempre una nota discordante."},
-  {t:"familia", a:13, setup:"Mi mamá siempre sabe cuándo miento.", punch:"Creo que tiene un detector instalado desde que nací."},
-  {t:"familia", a:18, setup:"En Navidad toda la familia se junta.", punch:"Y en cinco minutos ya hay tres discusiones políticas."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué la tablet se sentía sola?", punch:"Porque todos preferían el celular."},
-  {t:"tecnologia", a:13, setup:"Mi computadora se actualiza justo cuando la necesito.", punch:"Es como si supiera el peor momento posible."},
-  {t:"tecnologia", a:18, setup:"Configuré mi casa inteligente.", punch:"Ahora hasta las luces me ignoran cuando les hablo."},
-
-  {t:"piratas", a:4, setup:"¿Qué toma un pirata cuando tiene sed?", punch:"¡Un vaso de agua de mar... con hielo, arrr!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata no jugaba a las cartas en el barco?", punch:"Porque siempre había un tiburón mirando su mano."},
-
-  {t:"ciencia", a:8, setup:"¿Qué le dice un planeta a otro planeta?", punch:"Me encanta girar en tu órbita."},
-  {t:"ciencia", a:13, setup:"¿Por qué los científicos no confían en las escaleras?", punch:"Porque siempre están tramando algo."},
-  {t:"ciencia", a:18, setup:"Estudié el espacio profundo en la universidad.", punch:"Ahora entiendo mejor el vacío de mi cuenta bancaria."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice el piano al violín?", punch:"¡Hagamos una melodía juntos!"},
-  {t:"musica", a:8, setup:"¿Cuál es el colmo de un baterista?", punch:"Que se le rompa el tambor en pleno solo."},
-  {t:"musica", a:18, setup:"Fui a un concierto acústico.", punch:"Fue tan tranquilo que casi me quedo dormido de pie."},
-
-  {t:"superheroes", a:4, setup:"¿Qué le dice un superhéroe a otro?", punch:"¡Volemos juntos a salvar el día!"},
-  {t:"superheroes", a:4, setup:"¿Cuál es la fruta favorita de Superman?", punch:"La kryptonita... no, mejor la manzana, que es más segura."},
-  {t:"superheroes", a:8, setup:"¿Por qué Batman no usa redes sociales?", punch:"Porque prefiere mantener su identidad secreta."},
-  {t:"superheroes", a:8, setup:"¿Cuál es el colmo de un superhéroe?", punch:"Tener superfuerza pero no poder abrir un frasco de mermelada."},
-  {t:"superheroes", a:13, setup:"Quise ser superhéroe de grande.", punch:"Ahora solo tengo súper sueño y capa de manta."},
-  {t:"superheroes", a:13, setup:"El superhéroe llegó tarde a salvar la ciudad.", punch:"Dijo que el tráfico también es su archienemigo."},
-  {t:"superheroes", a:18, setup:"De grande quería tener superpoderes.", punch:"Ahora me conformo con encontrar las llaves a la primera."},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice la maleta al viajero?", punch:"¡Llévame contigo a la aventura!"},
-  {t:"viajes", a:8, setup:"¿Por qué el avión llegó tarde?", punch:"Porque se quedó viendo las nubes con forma de animales."},
-  {t:"viajes", a:8, setup:"¿Cuál es el colmo de un turista?", punch:"Sacarle fotos al mapa en vez de al paisaje."},
-  {t:"viajes", a:13, setup:"Planifiqué mis vacaciones con meses de anticipación.", punch:"Y terminé perdiendo el vuelo por dormirme."},
-  {t:"viajes", a:13, setup:"¿Por qué la brújula siempre está tranquila?", punch:"Porque sabe hacia dónde va."},
-  {t:"viajes", a:18, setup:"Viajar abre la mente.", punch:"Y también vacía la billetera a una velocidad impresionante."},
-
-  {t:"animales", a:4, setup:"¿Cómo se llama un perro mago?", punch:"¡Labra-cadabra!"},
-  {t:"animales", a:8, setup:"¿Por qué el mono no usa reloj?", punch:"Porque ya tiene su propio tiempo de columpio."},
-  {t:"animales", a:13, setup:"Mi perro entiende más de veinte palabras.", punch:"Yo entiendo menos de cinco antes del café."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el borrador al lápiz?", punch:"¡Yo arreglo lo que tú arruinas!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno de arte?", punch:"Que le borren la tarea y diga que era abstracta."},
-  {t:"escuela", a:18, setup:"Volví a estudiar de adulto.", punch:"Ahora hago la tarea entre reuniones de trabajo."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice el queso al pan?", punch:"¡Contigo todo sándwich es mejor!"},
-  {t:"comida", a:8, setup:"¿Por qué el limón fue a terapia?", punch:"Porque siempre se sentía muy ácido con todos."},
-  {t:"comida", a:13, setup:"Dije que iba a cocinar más saludable.", punch:"El aceite de oliva no cuenta como verdura, me dijeron."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la bicicleta al ciclista?", punch:"¡Vamos, dale para adelante!"},
-  {t:"deportes", a:8, setup:"¿Por qué el jugador de ajedrez fue al gimnasio?", punch:"Para hacer jaque a sus músculos."},
-  {t:"deportes", a:18, setup:"Me inscribí a clases de baile.", punch:"Sigo bailando como quien busca las llaves en la oscuridad."},
-
-  {t:"familia", a:4, setup:"¿Por qué el bebé se ríe tanto?", punch:"Porque todavía no sabe de facturas ni de impuestos."},
-  {t:"familia", a:13, setup:"Mi hermana usa mi ropa sin avisar.", punch:"Ya perdí la cuenta de cuántas prendas 'compartimos'."},
-  {t:"familia", a:18, setup:"Mis padres me preguntan si ya cociné algo esta semana.", punch:"Técnicamente calenté agua, eso cuenta un poco."},
-
-  {t:"tecnologia", a:4, setup:"¿Qué le dice la pantalla al teclado?", punch:"¡Muéstrame lo que tienes que decir!"},
-  {t:"tecnologia", a:13, setup:"Mi videojuego favorito se actualizó de nuevo.", punch:"Ya perdí la cuenta de cuántas veces guardé mi progreso en vano."},
-  {t:"tecnologia", a:18, setup:"Trabajo remoto desde casa.", punch:"Mi comodidad y mi productividad pelean todo el día."},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice la estrella a la luna?", punch:"¡Brillamos mejor juntas en la noche!"},
-  {t:"ciencia", a:13, setup:"Aprendí sobre gravedad en clase.", punch:"Explica perfectamente por qué siempre se me cae todo."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice la flauta al clarinete?", punch:"¡Hagamos un dueto esta tarde!"},
-  {t:"musica", a:13, setup:"Canté en la ducha esta mañana.", punch:"Mis vecinos ya tienen una opinión formada sobre mi talento."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice el sapo a la rana?", punch:"¡Salta conmigo hasta el estanque!"},
-  {t:"animales", a:4, setup:"¿Cómo se llama un león que no ruge?", punch:"Un león resfriado."},
-  {t:"animales", a:8, setup:"¿Por qué la cebra no se pierde nunca?", punch:"Porque siempre sigue sus propias rayas."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de un oso panda?", punch:"Que le digan que solo come ensaladas de bambú."},
-  {t:"animales", a:13, setup:"Mi conejo se escapó de la jaula otra vez.", punch:"A este paso va a tener más libertad que yo los findes."},
-  {t:"animales", a:18, setup:"Tengo dos gatos y ninguno me hace caso.", punch:"Al menos tienen algo en común con mis planes de dieta."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el uniforme a la mochila?", punch:"¡Vamos juntos a la escuela!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un profesor de música?", punch:"Que le pongan mala nota."},
-  {t:"escuela", a:13, setup:"Dejé la tarea para el último momento.", punch:"El último momento y yo ya somos viejos conocidos."},
-  {t:"escuela", a:18, setup:"Hice un posgrado para especializarme.", punch:"Ahora sé mucho de un tema y nada de vida social."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la fresa al helado?", punch:"¡Juntos somos el postre perfecto!"},
-  {t:"comida", a:8, setup:"¿Por qué la sandía no puede casarse?", punch:"Porque ya está comprometida en el frutero."},
-  {t:"comida", a:13, setup:"Iba a comer solo verduras esta semana.", punch:"Las papas fritas técnicamente vienen de una verdura."},
-  {t:"comida", a:18, setup:"Aprendí a hacer pan casero.", punch:"Ahora tengo una nueva forma de procrastinar con harina."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice el guante de béisbol a la pelota?", punch:"¡Ven aquí, te atrapo siempre!"},
-  {t:"deportes", a:8, setup:"¿Por qué el jugador de golf llevaba dos pantalones?", punch:"Por si hacía un hoyo en uno."},
-  {t:"deportes", a:13, setup:"Empecé a hacer pesas hace un mes.", punch:"Lo único que crece es mi excusa para no ir."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice el osito de peluche al niño?", punch:"¡Abrázame fuerte antes de dormir!"},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de pintores?", punch:"Que sus discusiones siempre tengan muchos matices."},
-  {t:"familia", a:13, setup:"Mi hermano mayor dice que sabe todo de la vida.", punch:"Pero sigue sin saber doblar bien la ropa."},
-  {t:"familia", a:18, setup:"Ser el hijo del medio tiene ventajas.", punch:"Nadie se acuerda de culparme primero."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué el teclado se sentía estresado?", punch:"Porque siempre lo presionaban."},
-  {t:"tecnologia", a:13, setup:"Mi videollamada se cortó justo cuando iba a hablar.", punch:"La tecnología también tiene sentido del humor."},
-  {t:"tecnologia", a:18, setup:"Compré auriculares con cancelación de ruido.", punch:"Ahora ni siquiera escucho mis propios pensamientos."},
-
-  {t:"piratas", a:4, setup:"¿Cómo se llama el barco favorito de un pirata?", punch:"¡El que tiene más tesoro a bordo, arrr!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata siempre llevaba un catalejo?", punch:"Para ver los problemas venir de lejos."},
-
-  {t:"ciencia", a:8, setup:"¿Qué le dice un electrón a otro electrón?", punch:"Contigo siento una energía especial."},
-  {t:"ciencia", a:13, setup:"Estudiamos el sistema solar en clase.", punch:"Ahora entiendo mejor por qué mi vida gira en círculos."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice la maraca al tambor?", punch:"¡Sigamos el ritmo juntos!"},
-  {t:"musica", a:13, setup:"Compuse una canción sobre mis problemas.", punch:"Ahora mis problemas tienen coro y todo."},
-
-  {t:"superheroes", a:4, setup:"¿Qué usa un superhéroe para volar rápido?", punch:"¡Su capa y muchas ganas!"},
-  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe no comía dulces?", punch:"Porque cuidaba su súper figura."},
-  {t:"superheroes", a:13, setup:"Mi superpoder sería la teletransportación.", punch:"Así llegaría a tiempo al menos una vez en la vida."},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice el pasaporte al viajero?", punch:"¡Listo para la próxima aventura!"},
-  {t:"viajes", a:8, setup:"¿Por qué el mapa siempre está tranquilo?", punch:"Porque sabe exactamente dónde está todo."},
-  {t:"viajes", a:18, setup:"Hice las maletas con dos días de anticipación.", punch:"Aun así olvidé el cargador del celular."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice el pato a la pata?", punch:"¡Vamos a nadar juntos al charco!"},
-  {t:"animales", a:8, setup:"¿Por qué el pulpo no se pierde nunca?", punch:"Porque siempre tiene una mano libre para el mapa."},
-  {t:"animales", a:13, setup:"Mi perro ladra cada vez que suena el timbre.", punch:"Al menos alguien en casa sigue alerta."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el cuaderno al lápiz?", punch:"¡Escríbeme algo bonito hoy!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un alumno distraído?", punch:"Buscar el celular mientras lo tiene en la mano."},
-  {t:"escuela", a:18, setup:"Fui a dar una charla sobre mi profesión.", punch:"Y terminé aprendiendo más yo que el público."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la miel a la abeja?", punch:"¡Gracias por hacerme tan dulce!"},
-  {t:"comida", a:13, setup:"Probé una dieta nueva esta semana.", punch:"Duró exactamente hasta que vi el menú del restaurante."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la red al balón de vóley?", punch:"¡Sube que aquí te espero!"},
-  {t:"deportes", a:13, setup:"Mi meta era correr cinco kilómetros.", punch:"Corrí dos y caminé el resto con mucha dignidad."},
-
-  {t:"familia", a:4, setup:"¿Por qué el papá cuenta chistes malos?", punch:"Porque es su trabajo oficial de papá."},
-  {t:"familia", a:13, setup:"Mis papás revisan mis redes sociales.", punch:"Ya perdí la cuenta de cuántas veces me han comentado sin avisar."},
-
-  {t:"tecnologia", a:4, setup:"¿Qué le dice el cargador al celular?", punch:"¡Yo te doy toda la energía que necesitas!"},
-  {t:"tecnologia", a:18, setup:"Probé trabajar sin notificaciones un día.", punch:"Me sentí más productivo y un poco en pánico."},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice la nube a la lluvia?", punch:"¡Cae con cuidado, que abajo hay gente!"},
-  {t:"ciencia", a:18, setup:"Aprendí sobre el efecto mariposa.", punch:"Ahora culpo a una mariposa por cada mal día."},
-
-  {t:"piratas", a:13, setup:"El pirata perdió su parche en la fiesta.", punch:"Nadie lo reconoció con los dos ojos abiertos."},
-
-  {t:"superheroes", a:18, setup:"De grande quería ser como mi superhéroe favorito.", punch:"Ahora solo aspiro a encontrar estacionamiento rápido."},
-
-  {t:"viajes", a:13, setup:"Fui de mochilero por primera vez.", punch:"Aprendí que 'viajar liviano' no incluía mi almohada favorita."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice la hormiga a la otra hormiga?", punch:"¡Vamos en fila, que el picnic es grande!"},
-  {t:"animales", a:4, setup:"¿Cómo saluda un búho a otro búho?", punch:"¡Buenas noches, colega nocturno!"},
-  {t:"animales", a:4, setup:"¿Qué le dice el gusanito a la manzana?", punch:"¡Qué bien que me diste casa y comida!"},
-  {t:"animales", a:8, setup:"¿Por qué el koala duerme tanto?", punch:"Porque el eucalipto lo deja muy relajado."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pez espada?", punch:"Que le pidan que corte la torta del cumpleaños."},
-  {t:"animales", a:8, setup:"¿Qué le dice una cebra a otra cebra en el espejo?", punch:"No sé si soy blanca con rayas negras o al revés."},
-  {t:"animales", a:13, setup:"Mi gato duerme dieciséis horas al día.", punch:"Es la única meta de vida que he logrado admirar de verdad."},
-  {t:"animales", a:13, setup:"El veterinario dijo que mi perro está sano.", punch:"Más sano que mis finanzas después de pagarle la consulta."},
-  {t:"animales", a:18, setup:"Adopté un perro para tener más rutina.", punch:"Ahora despierto más temprano que en cualquier trabajo que tuve."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el pupitre a la silla?", punch:"¡Aguantemos juntos todo el día!"},
-  {t:"escuela", a:4, setup:"¿Por qué el número 9 fue a la escuela?", punch:"Para aprender a ser el mejor de la clase."},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un maestro de educación física?", punch:"Que le digan que no da la talla."},
-  {t:"escuela", a:8, setup:"¿Qué le dice la campana a los alumnos?", punch:"¡Corran, que empieza el recreo!"},
-  {t:"escuela", a:13, setup:"Mi profesor de química dice que tengo buena reacción.", punch:"Sobre todo cuando anuncia examen sorpresa."},
-  {t:"escuela", a:13, setup:"Perdí mi lápiz favorito en el examen.", punch:"Ahora también perdí la mitad de mis respuestas."},
-  {t:"escuela", a:18, setup:"Terminé mis estudios y busco trabajo.", punch:"Pero todos piden experiencia que nadie me dio para empezar."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la naranja al limón?", punch:"¡Los dos somos cítricos con mucho jugo!"},
-  {t:"comida", a:4, setup:"¿Cómo se llama el postre más veloz?", punch:"El flan-tástico corredor."},
-  {t:"comida", a:8, setup:"¿Por qué el arroz nunca se pelea?", punch:"Porque siempre busca la manera de acompañar bien."},
-  {t:"comida", a:8, setup:"¿Cuál es el colmo de un vendedor de helados?", punch:"Que en invierno nadie le compre ni una bola."},
-  {t:"comida", a:13, setup:"Mi mamá cocina para todo un ejército.", punch:"Y aun así siempre falta comida cuando llego yo."},
-  {t:"comida", a:13, setup:"Compré comida saludable para la semana.", punch:"La mitad ya caducó porque olvidé que existía."},
-  {t:"comida", a:18, setup:"Aprendí a hacer sushi en casa.", punch:"Ahora gasto más en ingredientes que pidiendo en el restaurante."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la cancha al jugador?", punch:"¡Ven a correr un rato conmigo!"},
-  {t:"deportes", a:4, setup:"¿Cómo se llama un futbolista que no corre?", punch:"El arquero, porque su trabajo es quedarse quieto."},
-  {t:"deportes", a:8, setup:"¿Por qué el patinador siempre está de buen humor?", punch:"Porque va todo el día sobre ruedas."},
-  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un boxeador?", punch:"Que le peguen justo donde no puede taparse."},
-  {t:"deportes", a:13, setup:"Mi profesor de gimnasia dice que tengo potencial.", punch:"El potencial de llegar último con estilo."},
-  {t:"deportes", a:18, setup:"Compré una bicicleta para hacer ejercicio.", punch:"Ya lleva tres meses de decoración en el balcón."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice el hermano mayor al menor?", punch:"¡Yo te cuido, aunque a veces te moleste un poco!"},
-  {t:"familia", a:4, setup:"¿Por qué la mamá siempre encuentra todo?", punch:"Porque tiene un radar especial de mamá."},
-  {t:"familia", a:8, setup:"¿Cuál es el colmo de una familia de fotógrafos?", punch:"Que en cada foto alguien salga con los ojos cerrados."},
-  {t:"familia", a:8, setup:"¿Qué le dice el primo grande al primo chico?", punch:"¡Vamos a jugar antes de que nos llamen a comer!"},
-  {t:"familia", a:13, setup:"Mis papás me dicen que soy igual a ellos.", punch:"Lo dicen como si fuera un halago y una advertencia a la vez."},
-  {t:"familia", a:18, setup:"Organizar una cena familiar es complicado.", punch:"Siempre hay alguien que no come algo, sin excepción."},
-
-  {t:"tecnologia", a:4, setup:"¿Qué le dice la tablet al niño?", punch:"¡Solo un ratito más, lo prometo!"},
-  {t:"tecnologia", a:8, setup:"¿Por qué el robot fue a terapia?", punch:"Porque tenía muchos tornillos sueltos, literalmente."},
-  {t:"tecnologia", a:8, setup:"¿Cuál es el colmo de una cámara?", punch:"Que le saquen fotos borrosas todo el tiempo."},
-  {t:"tecnologia", a:13, setup:"Mi laptop se calienta como si corriera una maratón.", punch:"Solo tiene abierta una pestaña de música."},
-  {t:"tecnologia", a:18, setup:"Actualicé todas mis contraseñas por seguridad.", punch:"Ahora ni yo mismo puedo entrar a mis cuentas."},
-
-  {t:"piratas", a:4, setup:"¿Qué le dice el tesoro al pirata?", punch:"¡Al fin me encontraste, llevaba siglos esperando!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata llevaba dos parches?", punch:"Para no perderse ningún lado del horizonte."},
-  {t:"piratas", a:13, setup:"El pirata quiso hacerse contador.", punch:"Pero seguía contando todo en monedas de oro."},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice el arcoíris a la lluvia?", punch:"¡Gracias por dejarme salir a brillar!"},
-  {t:"ciencia", a:8, setup:"¿Por qué el termómetro se sentía importante?", punch:"Porque siempre tenía la última palabra sobre el clima."},
-  {t:"ciencia", a:13, setup:"Estudiamos los volcanes en clase de ciencias.", punch:"Ahora entiendo mejor mis reacciones cuando me hacen enojar."},
-  {t:"ciencia", a:18, setup:"Me fascina la teoría del big bang.", punch:"Explica el universo mejor de lo que explico mis gastos del mes."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice el xilófono al triángulo?", punch:"¡Sonamos mejor cuando tocamos juntos!"},
-  {t:"musica", a:8, setup:"¿Por qué el saxofón siempre llega tarde?", punch:"Porque le cuesta encontrar su propio ritmo."},
-  {t:"musica", a:13, setup:"Formé una banda con mis amigos.", punch:"Todavía no sabemos tocar, pero el nombre ya lo tenemos."},
-  {t:"musica", a:18, setup:"Fui a clases de canto por un año.", punch:"Ahora desafino con mucha más técnica."},
-
-  {t:"superheroes", a:4, setup:"¿Qué le dice el escudo al superhéroe?", punch:"¡Yo te protejo de todo peligro!"},
-  {t:"superheroes", a:8, setup:"¿Por qué el villano siempre pierde?", punch:"Porque nunca lee el manual de cómo ser malo de verdad."},
-  {t:"superheroes", a:13, setup:"Si tuviera un superpoder, sería la invisibilidad.", punch:"Así podría evitar todas las reuniones aburridas."},
-  {t:"superheroes", a:18, setup:"De niño quería salvar el mundo.", punch:"De grande me conformo con salvar mi fin de semana."},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice el tren a la estación?", punch:"¡Nos vemos pronto, guarda mi lugar!"},
-  {t:"viajes", a:8, setup:"¿Por qué la valija siempre pesa más al volver?", punch:"Porque vuelve llena de recuerdos y souvenirs."},
-  {t:"viajes", a:13, setup:"Planeé un viaje con mis amigos.", punch:"Terminamos gastando más tiempo decidiendo el hotel que viajando."},
-  {t:"viajes", a:18, setup:"Quise viajar ligero de equipaje.", punch:"Terminé llevando tres pares de zapatos 'por si acaso'."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice el grillo a la luna?", punch:"¡Canto para ti toda la noche!"},
-  {t:"animales", a:8, setup:"¿Por qué la ardilla guarda tantas nueces?", punch:"Porque piensa en el invierno todo el año."},
-  {t:"animales", a:13, setup:"Mi perico repite todo lo que escucha en casa.", punch:"Ya sabe hasta mis excusas para no hacer ejercicio."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el timbre a los alumnos?", punch:"¡Ring ring, hora de entrar a clase!"},
-  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un estudiante de arte?", punch:"Que le digan que su tarea parece un borrador."},
-  {t:"escuela", a:18, setup:"Volví a la universidad después de años.", punch:"Ahora soy el más grande del salón y el más perdido con la tecnología."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice el pastel a la vela?", punch:"¡Apágame los deseos, pero no me comas todavía!"},
-  {t:"comida", a:13, setup:"Fui al supermercado con hambre.", punch:"Volví con más comida de la que voy a poder guardar."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la raqueta a la pelota de tenis?", punch:"¡Vamos, que hoy jugamos en grande!"},
-  {t:"deportes", a:18, setup:"Empecé a nadar por las mañanas.", punch:"Mi cama sigue ganando la mayoría de las batallas."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice el bebé a su hermana mayor?", punch:"¡Enséñame a caminar como tú!"},
-  {t:"familia", a:13, setup:"Mi hermana siempre gana las discusiones.", punch:"Tiene un doctorado no oficial en tener la razón."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué la calculadora nunca se equivoca?", punch:"Porque siempre piensa las cosas con números."},
-  {t:"tecnologia", a:18, setup:"Compré un reloj inteligente para cuidar mi salud.", punch:"Ahora me recuerda que debería moverme más, todo el día."},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice la semilla a la tierra?", punch:"¡Ayúdame a crecer grande y fuerte!"},
-  {t:"ciencia", a:13, setup:"Aprendimos sobre los planetas del sistema solar.", punch:"Ahora sé que Plutón tiene más drama que mi familia."},
-
-  {t:"piratas", a:4, setup:"¿Qué le dice el ancla al barco pirata?", punch:"¡Yo te sostengo mientras buscas el tesoro!"},
-
-  {t:"musica", a:4, setup:"¿Qué le dice el micrófono al cantante?", punch:"¡Canta fuerte, yo te ayudo a que te escuchen!"},
-
-  {t:"superheroes", a:4, setup:"¿Qué le dice la capa al superhéroe?", punch:"¡Vuela que yo te sigo el ritmo!"},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice el barco al mar?", punch:"¡Llévame a descubrir nuevas islas!"},
-
-  {t:"animales", a:4, setup:"¿Qué le dice el perro al hueso?", punch:"¡Te voy a esconder en mi lugar secreto!"},
-  {t:"animales", a:4, setup:"¿Cómo hace un gato feliz?", punch:"Ronronea tan fuerte que tiembla la casa."},
-  {t:"animales", a:8, setup:"¿Por qué el murciélago duerme de cabeza?", punch:"Porque así todo le parece más interesante."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pez globo?", punch:"Que lo inviten a una fiesta y llegue inflado de más."},
-  {t:"animales", a:13, setup:"Mi perro aprendió a abrir la puerta.", punch:"Ahora entra y sale como si pagara el alquiler."},
-  {t:"animales", a:18, setup:"Mi gato me despierta a las cinco de la mañana.", punch:"Es el único despertador que no tiene botón de posponer."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el crayón al papel?", punch:"¡Vamos a llenarte de colores!"},
-  {t:"escuela", a:8, setup:"¿Por qué el globo terráqueo estaba mareado?", punch:"Porque no paraba de dar vueltas."},
-  {t:"escuela", a:13, setup:"Estudié toda la materia menos un tema.", punch:"Adivina de qué trató todo el examen."},
-  {t:"escuela", a:18, setup:"Me gradué con honores.", punch:"El honor de haber sobrevivido a cinco años de exámenes."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la zanahoria al conejo?", punch:"¡Cómeme, que estoy muy crujiente!"},
-  {t:"comida", a:8, setup:"¿Por qué el huevo no cuenta chistes?", punch:"Porque siempre se le rompe la seriedad."},
-  {t:"comida", a:13, setup:"Mi especialidad culinaria son los fideos.", punch:"Porque las instrucciones vienen en el paquete."},
-  {t:"comida", a:18, setup:"Guardé las sobras para mañana.", punch:"Mañana llegó a las once de la noche del mismo día."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la cuerda al niño que salta?", punch:"¡Uno, dos, tres, sigue así!"},
-  {t:"deportes", a:8, setup:"¿Por qué el futbolista llevaba una escalera?", punch:"Porque quería llegar a la primera división."},
-  {t:"deportes", a:13, setup:"Perdí el partido pero jugué bien.", punch:"Eso digo siempre y nadie me cree."},
-  {t:"deportes", a:18, setup:"Voy al gimnasio tres veces por semana.", punch:"Tres veces por semana pienso en ir."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice la abuela al nieto?", punch:"¡Come un poquito más, que estás muy flaquito!"},
-  {t:"familia", a:8, setup:"¿Por qué el papá siempre pierde el control remoto?", punch:"Porque se sienta encima sin darse cuenta."},
-  {t:"familia", a:13, setup:"Mis papás dicen que salgo mucho.", punch:"Salgo del cuarto a la cocina, básicamente."},
-  {t:"familia", a:18, setup:"Me mudé solo por independencia.", punch:"Ahora llamo a mi mamá para preguntar cómo se cocina el arroz."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué el USB estaba confundido?", punch:"Porque nunca entra bien a la primera."},
-  {t:"tecnologia", a:13, setup:"Guardé el archivo en un lugar seguro.", punch:"Tan seguro que ni yo lo encuentro."},
-  {t:"tecnologia", a:18, setup:"Instalé una app para dormir mejor.", punch:"Ahora me quedo despierto revisando las estadísticas de sueño."},
-
-  {t:"piratas", a:4, setup:"¿Qué come un pirata en el desayuno?", punch:"¡Pan del mar con mermelada de tesoro!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata no usaba brújula?", punch:"Porque decía que su instinto era su norte."},
-
-  {t:"ciencia", a:8, setup:"¿Qué le dice el agua al hielo?", punch:"¡Relájate un poco, que estás muy tenso!"},
-  {t:"ciencia", a:13, setup:"La luz viaja más rápido que el sonido.", punch:"Por eso algunos parecen brillantes hasta que hablan."},
-  {t:"ciencia", a:18, setup:"Leí que el universo se expande.", punch:"Igual que mi lista de cosas pendientes."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice la nota al pentagrama?", punch:"¡Aquí me quedo, este es mi lugar!"},
-  {t:"musica", a:8, setup:"¿Por qué el bajo siempre está tranquilo?", punch:"Porque lleva el ritmo desde el fondo sin hacer ruido."},
-  {t:"musica", a:18, setup:"Aprendí a tocar el ukelele en la cuarentena.", punch:"Mis vecinos aprendieron a cerrar bien las ventanas."},
-
-  {t:"superheroes", a:4, setup:"¿Qué desayuna un superhéroe?", punch:"¡Cereal con mucha energía!"},
-  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe llegó tarde al rescate?", punch:"Porque no encontraba dónde cambiarse de ropa."},
-  {t:"superheroes", a:13, setup:"Mi superpoder sería leer la mente.", punch:"Aunque creo que me arrepentiría en la primera clase."},
-
-  {t:"viajes", a:8, setup:"¿Por qué el globo aerostático es tan tranquilo?", punch:"Porque se toma la vida con mucha calma y aire."},
-  {t:"viajes", a:13, setup:"Reservé el hotel más barato que encontré.", punch:"Ahora entiendo por qué era el más barato."},
-  {t:"viajes", a:18, setup:"Volví de vacaciones más cansado que antes.", punch:"Necesito unas vacaciones de mis vacaciones."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice la mariposa a la flor?", punch:"¡Gracias por el desayuno de hoy!"},
-  {t:"animales", a:4, setup:"¿Cómo se llama un perro que hace magia con la cola?", punch:"Un cola-borador de trucos."},
-  {t:"animales", a:8, setup:"¿Por qué el erizo camina solo?", punch:"Porque abrazarlo es todo un desafío."},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de un pájaro carpintero?", punch:"Que le den un trabajo de oficina."},
-  {t:"animales", a:13, setup:"Mi hámster corre en su rueda toda la noche.", punch:"Es el único de la casa que cumple su rutina de ejercicio."},
-  {t:"animales", a:18, setup:"Mi perro me recibe como si volviera de la guerra.", punch:"Fui a sacar la basura, tres minutos."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice la goma al error?", punch:"¡No te preocupes, yo te arreglo!"},
-  {t:"escuela", a:8, setup:"¿Por qué el diccionario es tan sabio?", punch:"Porque tiene respuestas para todas las palabras."},
-  {t:"escuela", a:13, setup:"El profesor preguntó quién no hizo la tarea.", punch:"Nadie levantó la mano, todos levantamos excusas."},
-  {t:"escuela", a:18, setup:"Aprendí mucho en la universidad.", punch:"Sobre todo a dormir cuatro horas y fingir energía."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la cuchara al plato?", punch:"¡Vamos a terminar toda la sopa juntos!"},
-  {t:"comida", a:8, setup:"¿Por qué la cebolla hace llorar?", punch:"Porque tiene muchas capas de sentimientos."},
-  {t:"comida", a:13, setup:"Cociné algo nuevo y salió mal.", punch:"Lo llamé experimento para no llamarlo desastre."},
-  {t:"comida", a:18, setup:"Tengo especias que nunca uso.", punch:"Están ahí para dar prestigio a mi cocina."},
-
-  {t:"deportes", a:4, setup:"¿Qué le dice la pelota al pie?", punch:"¡Dale suave que soy delicada!"},
-  {t:"deportes", a:8, setup:"¿Por qué el equipo llevaba paraguas al partido?", punch:"Porque esperaban una lluvia de goles."},
-  {t:"deportes", a:13, setup:"Mi récord personal corriendo es impresionante.", punch:"Corrí para alcanzar el autobús y lo logré."},
-  {t:"deportes", a:18, setup:"Me compré ropa deportiva cara.", punch:"Ahora estoy elegante mientras no hago ejercicio."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice el papá al bebé dormido?", punch:"¡Duerme tranquilo, yo cuido tus sueños!"},
-  {t:"familia", a:8, setup:"¿Por qué mamá siempre dice 'en un minuto'?", punch:"Porque su minuto dura media hora."},
-  {t:"familia", a:13, setup:"Mi familia dice que hablo dormido.", punch:"Es la única vez que me escuchan sin interrumpir."},
-  {t:"familia", a:18, setup:"Heredé la manía de mi papá de revisar todo dos veces.", punch:"Y también su costumbre de perder las llaves igual."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué el altavoz gritaba tanto?", punch:"Porque era su única forma de comunicarse."},
-  {t:"tecnologia", a:13, setup:"Mi batería dura todo el día.", punch:"Si no toco el teléfono en ningún momento."},
-  {t:"tecnologia", a:18, setup:"Guardo capturas de pantalla de todo.", punch:"Mi galería es un museo de cosas que nunca vuelvo a mirar."},
-
-  {t:"piratas", a:4, setup:"¿Qué canta un pirata en su cumpleaños?", punch:"¡Cumpleaños feliz, arrr, arrr!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata aprendió a nadar tarde?", punch:"Porque siempre confiaba demasiado en su barco."},
-  {t:"piratas", a:13, setup:"El pirata escribió sus memorias.", punch:"Las tituló 'Todo lo que enterré y olvidé dónde'."},
-
-  {t:"ciencia", a:8, setup:"¿Qué le dice el imán al metal?", punch:"¡Ven aquí, no te resistas!"},
-  {t:"ciencia", a:13, setup:"En clase aprendimos sobre el sonido.", punch:"Ahora sé por qué mis excusas rebotan en las paredes."},
-  {t:"ciencia", a:18, setup:"Me explicaron la relatividad del tiempo.", punch:"Lo confirmo cada lunes por la mañana."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice el tambor al palillo?", punch:"¡Golpea suave, que me haces cosquillas!"},
-  {t:"musica", a:8, setup:"¿Por qué el coro siempre está unido?", punch:"Porque si uno desafina, se nota enseguida."},
-  {t:"musica", a:13, setup:"Escucho la misma canción cincuenta veces.", punch:"Hasta que deja de gustarme y busco otra."},
-  {t:"musica", a:18, setup:"Mi playlist de concentración tiene cien canciones.", punch:"Paso más tiempo eligiendo cuál poner que trabajando."},
-
-  {t:"superheroes", a:4, setup:"¿Qué hace un superhéroe cuando se cansa?", punch:"¡Toma una siesta de superpoderes!"},
-  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe usa máscara?", punch:"Para que nadie le pida favores en el supermercado."},
-  {t:"superheroes", a:13, setup:"Los villanos siempre explican su plan completo.", punch:"Es el peor hábito profesional del mundo del crimen."},
-  {t:"superheroes", a:18, setup:"Mi superpoder de adulto es fingir que entiendo.", punch:"Funciona en reuniones y en conversaciones técnicas."},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice el avión a las nubes?", punch:"¡Déjenme pasar que llevo gente feliz!"},
-  {t:"viajes", a:8, setup:"¿Por qué el viajero llevaba dos relojes?", punch:"Para no perderse entre husos horarios."},
-  {t:"viajes", a:13, setup:"Aprendí tres palabras del idioma local.", punch:"Hola, gracias y dónde está el baño. Suficiente."},
-  {t:"viajes", a:18, setup:"Siempre digo que voy a viajar ligero.", punch:"Siempre termino pagando exceso de equipaje."},
-
-  {t:"animales", a:4, setup:"¿Qué hace un perro con un taladro?", punch:"¡Taladrando!"},
-  {t:"animales", a:4, setup:"¿Cómo se llama un cocodrilo con GPS?", punch:"Un navegador."},
-  {t:"animales", a:4, setup:"¿Qué le dice una iguana a su hermana gemela?", punch:"¡Somos iguanitas!"},
-  {t:"animales", a:8, setup:"¿Qué hace una vaca cuando sale el sol?", punch:"Sombra."},
-  {t:"animales", a:8, setup:"¿Cómo se despiden los químicos que tienen perro?", punch:"Ácido un placer."},
-  {t:"animales", a:8, setup:"¿Cuál es el animal más gracioso?", punch:"El pato, porque siempre está de pata en pata."},
-  {t:"animales", a:13, setup:"¿Qué le dijo el caracol al perezoso?", punch:"Corre, que nos pasa el tiempo."},
-  {t:"animales", a:13, setup:"Los peces nunca engordan.", punch:"Porque siempre están a dieta de escamas."},
-  {t:"animales", a:18, setup:"Mi gato tiene tres estados de ánimo.", punch:"Hambre, desprecio, y hambre con desprecio."},
-
-  {t:"escuela", a:4, setup:"¿Qué le dice el 1 al 10?", punch:"¡Para ser como yo, tienes que ser sincero!"},
-  {t:"escuela", a:8, setup:"¿Por qué el libro de matemáticas se fue al gimnasio?", punch:"Para resolver sus problemas de peso."},
-  {t:"escuela", a:8, setup:"¿Qué le dice el cero al ocho?", punch:"¡Bonito cinturón!"},
-  {t:"escuela", a:13, setup:"Mi profesor dijo que el examen sería pan comido.", punch:"Se le olvidó decir que yo estaba a dieta."},
-  {t:"escuela", a:13, setup:"Saqué un diez en el examen.", punch:"Un diez por ciento, pero un diez al fin."},
-  {t:"escuela", a:18, setup:"En la universidad aprendí tres idiomas.", punch:"Excusas, evasivas y silencios incómodos."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice el tomate al ketchup?", punch:"¡Mamá, te ves distinta!"},
-  {t:"comida", a:4, setup:"¿Qué hace un pan en el mar?", punch:"Naufra-miga."},
-  {t:"comida", a:8, setup:"¿Cuál es la fruta más paciente?", punch:"La pera, porque siempre es-pera."},
-  {t:"comida", a:8, setup:"¿Por qué el café llegó primero a la meta?", punch:"Porque estaba molido pero no vencido."},
-  {t:"comida", a:13, setup:"Mi dieta funciona perfectamente.", punch:"Bajé de peso el celular al desinstalar apps de comida."},
-  {t:"comida", a:13, setup:"¿Cuál es el postre más honesto?", punch:"El flan, porque siempre tiembla al decir la verdad."},
-  {t:"comida", a:18, setup:"Compré verduras frescas el domingo.", punch:"El viernes las tiré, también frescas, pero verdes de otra forma."},
-
-  {t:"deportes", a:4, setup:"¿Por qué el balón no va a fiestas?", punch:"Porque siempre lo patean."},
-  {t:"deportes", a:8, setup:"¿Cuál es el deporte favorito de los fantasmas?", punch:"El bóley, porque siempre están en el aire."},
-  {t:"deportes", a:8, setup:"¿Por qué el árbitro llevaba lentes?", punch:"Porque todos le decían que no veía nada."},
-  {t:"deportes", a:13, setup:"Mi entrenador dice que corra con el corazón.", punch:"Le dije que mis piernas tienen otra opinión."},
-  {t:"deportes", a:13, setup:"¿Cuál es el colmo de un maratonista?", punch:"Llegar primero al sofá."},
-  {t:"deportes", a:18, setup:"Me apunté al gimnasio en enero.", punch:"En febrero ya era socio honorario ausente."},
-
-  {t:"familia", a:4, setup:"¿Qué le dice la mamá oso al osito?", punch:"¡A dormir, que mañana hay miel!"},
-  {t:"familia", a:8, setup:"¿Por qué los hermanos son como el wifi?", punch:"Cuando más los necesitas, no están disponibles."},
-  {t:"familia", a:13, setup:"Mi mamá tiene visión de rayos X.", punch:"Sabe que mentí antes de que termine la frase."},
-  {t:"familia", a:13, setup:"En mi casa hay democracia.", punch:"Todos votamos y gana mamá."},
-  {t:"familia", a:18, setup:"Ahora entiendo a mis padres.", punch:"Justo cuando mis hijos dejaron de entenderme a mí."},
-
-  {t:"tecnologia", a:8, setup:"¿Por qué el ratón no puede correr?", punch:"Porque está atado al cable."},
-  {t:"tecnologia", a:8, setup:"¿Qué hace un programador en el desierto?", punch:"Busca un oasis de wifi."},
-  {t:"tecnologia", a:13, setup:"¿Por qué el libro le ganó al e-book?", punch:"Porque nunca se queda sin batería."},
-  {t:"tecnologia", a:13, setup:"Mi contraseña tiene doce caracteres.", punch:"Todos ellos olvidados."},
-  {t:"tecnologia", a:18, setup:"Dicen que hay que desconectarse un día.", punch:"Lo intenté y terminé mirando la pared en HD."},
-
-  {t:"piratas", a:4, setup:"¿Cuál es la letra favorita de un pirata?", punch:"¡La erre, arrr!"},
-  {t:"piratas", a:8, setup:"¿Por qué el pirata no aprobó el examen?", punch:"Porque todo lo dejó en el mapa del tesoro."},
-  {t:"piratas", a:13, setup:"El pirata abrió una panadería.", punch:"Vende pan-teones de sabor."},
-
-  {t:"ciencia", a:8, setup:"¿Por qué el libro de física se hundió?", punch:"Porque tenía mucha materia."},
-  {t:"ciencia", a:8, setup:"¿Qué le dice el uno al cero en el laboratorio?", punch:"Sin ti, no soy nada binario."},
-  {t:"ciencia", a:13, setup:"¿Por qué el oxígeno y el hidrógeno se llevan bien?", punch:"Porque juntos fluyen."},
-  {t:"ciencia", a:13, setup:"Un neutrón entra a un bar y pregunta el precio.", punch:"El barman dice: para ti, sin cargo."},
-  {t:"ciencia", a:18, setup:"Dicen que la energía no se crea ni se destruye.", punch:"La mía claramente se transformó en sueño."},
-
-  {t:"musica", a:4, setup:"¿Qué le dice el do al re?", punch:"¡Sígueme, que voy primero!"},
-  {t:"musica", a:8, setup:"¿Cuál es el instrumento más sincero?", punch:"El triángulo, porque no tiene dobleces."},
-  {t:"musica", a:13, setup:"Mi banda tocó su primer concierto.", punch:"Y también el último, según el público."},
-  {t:"musica", a:18, setup:"Toco de oído.", punch:"Por eso siempre suena como si me lo estuvieran susurrando mal."},
-
-  {t:"superheroes", a:4, setup:"¿Cuál es el superhéroe más rápido del desayuno?", punch:"¡Flash, que llega antes que la leche!"},
-  {t:"superheroes", a:8, setup:"¿Por qué el hombre invisible no tiene amigos?", punch:"Porque nadie lo ve venir."},
-  {t:"superheroes", a:13, setup:"Mi superpoder es dormirme en cualquier lugar.", punch:"Mi debilidad es despertarme a tiempo."},
-  {t:"superheroes", a:18, setup:"Ser adulto es tener superpoderes.", punch:"Puedo comer helado de cena y nadie me detiene."},
-
-  {t:"viajes", a:4, setup:"¿Qué le dice el mapa a la brújula?", punch:"¡Tú apunta y yo te muestro!"},
-  {t:"viajes", a:8, setup:"¿Por qué el avión no tiene amigos en tierra?", punch:"Porque siempre está por las nubes."},
-  {t:"viajes", a:13, setup:"Viajé con equipaje de mano solamente.", punch:"Y compré una maleta allá para traer todo lo que compré."},
-  {t:"viajes", a:18, setup:"Dicen que lo importante es el viaje, no el destino.", punch:"Eso lo dijo alguien que nunca tuvo escala de nueve horas."},
-
-  {t:"animales", a:4, setup:"¿Qué le dice un gato a otro gato enamorado?", punch:"¡Estás miau-ravilloso!"},
-  {t:"animales", a:8, setup:"¿Cuál es el colmo de una foca?", punch:"Que le digan que aplauda con las manos."},
-  {t:"animales", a:13, setup:"Los búhos son los más sabios.", punch:"Por eso nunca trasnochan por Netflix."},
-
-  {t:"escuela", a:4, setup:"¿Por qué el libro está siempre callado?", punch:"Porque habla con las páginas."},
-  {t:"escuela", a:13, setup:"El examen tenía una pregunta de desarrollo.", punch:"Yo desarrollé mucha ansiedad."},
-
-  {t:"comida", a:4, setup:"¿Qué le dice la uva a la pasa?", punch:"¡Qué arrugada estás, prima!"},
-  {t:"comida", a:18, setup:"Cociné siguiendo la receta al pie de la letra.", punch:"El problema es que la letra era de otro plato."},
-
-  {t:"familia", a:8, setup:"¿Qué le dice el calcetín izquierdo al derecho?", punch:"¡Somos familia aunque nos separen en la lavadora!"},
-
-  {t:"tecnologia", a:4, setup:"¿Qué le dice el wifi a la casa?", punch:"¡Aquí llego, pero no a todos los cuartos!"},
-
-  {t:"ciencia", a:4, setup:"¿Qué le dice la gota de agua a la nube?", punch:"¡Ya me toca caer, hasta luego!"},
-
-  {t:"superheroes", a:8, setup:"¿Cuál es la comida favorita de un superhéroe?", punch:"El súper mercado entero."},
-
-  {t:"viajes", a:8, setup:"¿Cuál es el colmo de una maleta?", punch:"Que le pongan ruedas y aun así la arrastren."},
-  {t:"familia", a:18, setup:"Mi familia dice que soy el gracioso del grupo.", punch:"Lo dicen justo después de que nadie se ríe."},
-
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre cayendo por unas escaleras. ¿Cómo se llama la película?", punch:"Sin Ver Este Escalón (Silvester Stallone)"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ven un montón de ranas cantando de noche. ¿Cómo se llama la obra?", punch:"El Croar de la Noche"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a dos hermanos peleando por una manta. ¿Cómo se llama la película?", punch:"La Tira y Afloja"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve un tomate persiguiendo a otro. ¿Cómo se llama la obra?", punch:"La Persecución del Ketchup"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a una señora con un calendario. ¿Cómo se llama la obra?", punch:"Los Días Contados"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre dormido encima del reloj. ¿Cómo se llama la película?", punch:"El Tiempo se Detuvo"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un pez en una bicicleta. ¿Cómo se llama la obra?", punch:"Fuera de su Elemento"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve un campo lleno de ovejas dormidas. ¿Cómo se llama la película?", punch:"Cuenta Conmigo"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un niño sin dientes sonriendo. ¿Cómo se llama la obra?", punch:"El Ratón Pasó Anoche"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un panadero sin harina. ¿Cómo se llama la película?", punch:"Ni Pan Ni Nada"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un señor que trabaja sin parar. ¿Cómo se llama el actor?", punch:"Aquiles Curro (a quien le curro)"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre mirando el techo. ¿Cómo se llama la obra?", punch:"Techo de Cristal"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve un armario vacío. ¿Cómo se llama la película?", punch:"Nada que Ponerse"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un tipo esperando el autobús bajo la lluvia. ¿Cómo se llama la obra?", punch:"La Espera Mojada"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve una nevera abierta a las tres de la mañana. ¿Cómo se llama la película?", punch:"El Hambre Nocturno"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un estudiante mirando una hoja en blanco. ¿Cómo se llama la obra?", punch:"La Mente en Blanco"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre buscando las llaves que tiene en la mano. ¿Cómo se llama la película?", punch:"Búsqueda Innecesaria"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve una cuenta bancaria a final de mes. ¿Cómo se llama la obra?", punch:"El Vacío Existencial"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve a un hombre respondiendo correos a medianoche. ¿Cómo se llama la película?", punch:"Sin Horario Fijo"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve a alguien diciendo 'mañana empiezo la dieta'. ¿Cómo se llama la obra?", punch:"La Promesa Eterna"},
-
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre con una sartén en la cabeza. ¿Cómo se llama la película?", punch:"El Sartenazo Inesperado"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve una gallina leyendo un libro. ¿Cómo se llama la obra?", punch:"La Culta Ponedora"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a dos gatos peleando por un ovillo. ¿Cómo se llama la obra?", punch:"El Hilo del Conflicto"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve un semáforo en ámbar eterno. ¿Cómo se llama la película?", punch:"La Duda Permanente"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un caracol en una autopista. ¿Cómo se llama la obra?", punch:"Llegaré Algún Día"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un pingüino en el desierto. ¿Cómo se llama la película?", punch:"Error de Cálculo"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve una bombilla fundida. ¿Cómo se llama la obra?", punch:"Se Nos Fue la Idea"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un hombre sin paraguas bajo un chaparrón. ¿Cómo se llama el actor?", punch:"Armando Charco"},
-  {t:"telon", a:8, setup:"Se abre el telón y se ve a un señor empujando un coche averiado. ¿Cómo se llama el actor?", punch:"Armando Fuerza"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un tipo sin dinero a mitad de mes. ¿Cómo se llama la película?", punch:"Sin Blanca Nieves"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre que nunca contesta el móvil. ¿Cómo se llama el actor?", punch:"Elias Tanocupado"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve una cola larguísima en el banco. ¿Cómo se llama la obra?", punch:"La Paciencia Infinita"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a alguien buscando las gafas que lleva puestas. ¿Cómo se llama la obra?", punch:"Delante de tus Narices"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un estudiante empezando el trabajo la noche antes. ¿Cómo se llama la película?", punch:"Contrarreloj"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un hombre discutiendo con el autocorrector. ¿Cómo se llama la obra?", punch:"Batalla Perdida"},
-  {t:"telon", a:13, setup:"Se abre el telón y se ve a un chico ensayando frente al espejo. ¿Cómo se llama la película?", punch:"El Discurso que Nunca Dirá"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve un despertador a las seis de la mañana del lunes. ¿Cómo se llama la obra?", punch:"El Horror Puntual"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve una reunión que podría haber sido un correo. ¿Cómo se llama la película?", punch:"Tiempo Perdido"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve a alguien leyendo términos y condiciones. ¿Cómo se llama la obra?", punch:"Nadie Hace Eso"},
-  {t:"telon", a:18, setup:"Se abre el telón y se ve a un hombre ordenando el garaje por tercera vez. ¿Cómo se llama la película?", punch:"La Procrastinación Productiva"},
-
-  {t:"animales", a:4, setup:"¿Qué le dice el cerdito al charco?", punch:"¡Aquí vengo, mi bañera favorita!"},
-  {t:"animales", a:8, setup:"¿Por qué el camello no se queja del desierto?", punch:"Porque siempre lleva sus reservas encima."},
-  {t:"animales", a:13, setup:"Mi perro se sienta cuando le digo 'siéntate'.", punch:"Es el único de la casa que me hace caso a la primera."},
-  {t:"animales", a:18, setup:"Dicen que los perros se parecen a sus dueños.", punch:"El mío duerme todo el día y come sin control, así que confirmo."},
-
-  {t:"escuela", a:8, setup:"¿Por qué la mochila siempre está cansada?", punch:"Porque carga con todos los problemas."},
-  {t:"escuela", a:13, setup:"Dije que iba a estudiar con tiempo este trimestre.", punch:"El tiempo pasó, yo no estudié, pero la intención fue preciosa."},
-
-  {t:"comida", a:8, setup:"¿Por qué la pasta nunca se estresa?", punch:"Porque siempre está al dente, ni un minuto más."},
-  {t:"comida", a:18, setup:"Abrí la nevera buscando inspiración.", punch:"Encontré tres salsas caducadas y una idea de pedir pizza."},
-
-  {t:"deportes", a:8, setup:"¿Por qué el portero llevaba guantes en verano?", punch:"Porque las manos frías paran mejor los balones calientes."},
-  {t:"deportes", a:18, setup:"Dicen que lo importante es participar.", punch:"Eso lo inventó alguien que nunca ganó nada."},
-
-  {t:"familia", a:8, setup:"¿Por qué el abuelo tiene siempre caramelos?", punch:"Porque es su forma secreta de ser el favorito."},
-  {t:"familia", a:18, setup:"Mis padres me llaman solo cuando algo se rompe.", punch:"Soy su soporte técnico gratuito de por vida."},
-
-  {t:"tecnologia", a:13, setup:"Mi teléfono se apaga al 20% de batería.", punch:"Tiene la misma resistencia que yo un lunes."},
-  {t:"tecnologia", a:18, setup:"Dicen que apagar y encender lo arregla todo.", punch:"Llevo años intentándolo conmigo mismo cada mañana."},
-
-  {t:"ciencia", a:8, setup:"¿Por qué el hielo es tan sociable?", punch:"Porque siempre rompe el hielo en las fiestas."},
-  {t:"ciencia", a:18, setup:"El café es una reacción química perfecta.", punch:"Convierte el sueño en decisiones cuestionables."},
-
-  {t:"musica", a:8, setup:"¿Por qué la guitarra fue al médico?", punch:"Porque tenía las cuerdas vocales tensas."},
-  {t:"musica", a:18, setup:"Pongo música para concentrarme.", punch:"Termino cantando y sin haber hecho nada."},
-
-  {t:"superheroes", a:8, setup:"¿Por qué el superhéroe lleva cinturón?", punch:"Para que no se le caigan los superpoderes."},
-  {t:"superheroes", a:18, setup:"Mi verdadero superpoder es sobrevivir a la semana.", punch:"Cada viernes lo celebro como una victoria épica."},
-
-  {t:"viajes", a:8, setup:"¿Por qué el tren nunca llega tarde a la estación?", punch:"Porque siempre va sobre la vía correcta."},
-  {t:"viajes", a:18, setup:"Reservé un hotel con vistas al mar.", punch:"El mar estaba a cuarenta minutos en coche, pero se veía."},
-
-  {t:"otros", a:4, setup:"¿Qué hace una oreja en el hospital?", punch:"Espera a que la escuchen."},
-  {t:"otros", a:4, setup:"¿Qué le dice un cero a otro cero?", punch:"¡No somos nada!"},
-  {t:"otros", a:4, setup:"¿Qué hace un pez en el cine?", punch:"Ver una película de aleta-metraje."},
-  {t:"otros", a:4, setup:"¿Cuál es el colmo de un jardinero?", punch:"Que su novia se llame Rosa y lo deje plantado."},
-  {t:"otros", a:8, setup:"¿Qué le dijo el techo a la pared?", punch:"Sujétame que me caigo."},
+  // ===== ANIMALES =====
+  {t:"animales", a:4, setup:"¿Qué le dice un pez a otro pez?", punch:"Nada."},
+  {t:"animales", a:4, setup:"¿Qué hace una abeja en el gimnasio?", punch:"Zum-ba."},
+  {t:"animales", a:4, setup:"¿Qué le dice una iguana a su hermana gemela?", punch:"Somos iguanitas."},
+  {t:"animales", a:4, setup:"¿Cuál es el animal más antiguo?", punch:"La cebra, porque está en blanco y negro."},
+  {t:"animales", a:4, setup:"¿Qué hace un perro con un taladro?", punch:"Taladrando."},
+  {t:"animales", a:4, setup:"¿Cuál fue el último animal en subir al arca de Noé?", punch:"El del-fín."},
+  {t:"animales", a:4, setup:"¿Qué hace una vaca cuando sale el sol?", punch:"Sombra."},
+  {t:"animales", a:4, setup:"¿Qué animal es dos veces animal?", punch:"El gato, porque es gato y araña."},
+  {t:"animales", a:8, setup:"¿Qué le dice un gusano a otro gusano?", punch:"Me voy a dar una vuelta a la manzana."},
+  {t:"animales", a:8, setup:"¿Por qué los peces no van al colegio?", punch:"Porque ya están en el banco."},
+  {t:"animales", a:8, setup:"¿Por qué los elefantes no usan ordenador?", punch:"Porque les da miedo el ratón."},
+  {t:"animales", a:8, setup:"¿Qué le pasa al perro que se come un reloj?", punch:"Que se le hace tarde."},
+  {t:"animales", a:8, setup:"¿Por qué las vacas llevan cencerro?", punch:"Porque los cuernos no les suenan."},
+  {t:"animales", a:8, setup:"¿Por qué los pájaros vuelan hacia el sur en invierno?", punch:"Porque ir andando queda muy lejos."},
+  {t:"animales", a:8, setup:"¿Cuál es el colmo de un gato?", punch:"Comerse un ratón de ordenador."},
+  {t:"animales", a:8, setup:"¿Qué le dice un jaguar a otro?", punch:"Jaguar yu?"},
+  {t:"animales", a:8, setup:"¿Por qué los esqueletos no se pelean entre ellos?", punch:"Porque no tienen agallas."},
+  {t:"animales", a:13, setup:"¿Cuál es el colmo de un caracol?", punch:"Perder la casa y seguir cargando con la hipoteca."},
+
+  // ===== ESCUELA =====
+  {t:"escuela", a:4, setup:"¿Por qué el libro de matemáticas está triste?", punch:"Porque tiene muchos problemas."},
+  {t:"escuela", a:8, setup:"Jaimito, dime cinco animales que vivan en África.", punch:"Dos elefantes y tres leones."},
+  {t:"escuela", a:8, setup:"Jaimito, ¿cuántos son dos y dos? — Cuatro. — Muy bien, toma cuatro caramelos.", punch:"¡Si llego a saber que eran caramelos, digo diez!"},
+  {t:"escuela", a:8, setup:"¿Qué le dice el número 1 al número 10?", punch:"Para ser como yo tienes que ser sincero."},
+  {t:"escuela", a:8, setup:"Jaimito, ¿qué sabes de los Reyes Católicos?", punch:"Que están muertos."},
+  {t:"escuela", a:8, setup:"Jaimito, si tienes diez euros y le pides cinco a tu padre, ¿cuánto tienes? — Diez euros. — No sabes restar.", punch:"Usted no conoce a mi padre."},
+  {t:"escuela", a:8, setup:"¿Por qué el profesor lleva gafas de sol en clase?", punch:"Porque sus alumnos son muy brillantes."},
+  {t:"escuela", a:8, setup:"¿Cuál es el colmo de un profesor de geografía?", punch:"Perderse yendo a clase."},
+  {t:"escuela", a:8, setup:"Jaimito, ¿por qué llegas tarde? — Es que soñé que jugaba la final del Mundial y duraba mucho.", punch:"¿Y no podías despertarte? — No, es que íbamos a la prórroga."},
+  {t:"escuela", a:13, setup:"Profesor, ¿me castigaría usted por algo que no he hecho? — Claro que no, Jaimito.", punch:"Menos mal, porque no he hecho los deberes."},
+  {t:"escuela", a:13, setup:"¿Cuál es el colmo de un estudiante?", punch:"Quedarse en blanco delante de la hoja en blanco."},
+
+  // ===== COMIDA =====
+  {t:"comida", a:4, setup:"¿Qué le dice un huevo a la sartén?", punch:"Me tienes frito."},
+  {t:"comida", a:4, setup:"¿Qué le dijo el tomate a la cebolla?", punch:"Deja de hacerme llorar."},
+  {t:"comida", a:4, setup:"¿Cuál es la fruta más divertida?", punch:"La naranja, porque se parte."},
+  {t:"comida", a:4, setup:"¿Qué le dice una uva verde a una uva morada?", punch:"¡Respira!"},
+  {t:"comida", a:4, setup:"¿Por qué la gallina cruzó la carretera?", punch:"Para llegar al otro lado."},
+  {t:"comida", a:8, setup:"¿Cómo se llama el primo vegetariano de Bruce Lee?", punch:"Broco Lee."},
+  {t:"comida", a:8, setup:"Camarero, ¿qué hace esta mosca en mi sopa?", punch:"Nadando, señor."},
+  {t:"comida", a:8, setup:"Camarero, este filete tiene muchos nervios.", punch:"Normal, es la primera vez que se lo comen."},
+  {t:"comida", a:8, setup:"Camarero, perdone, ¿el pescado viene solo?", punch:"No, señor, se lo traigo yo."},
+  {t:"comida", a:8, setup:"¿Qué le dice el azúcar a la cuchara?", punch:"Nos vemos en el café."},
+  {t:"comida", a:8, setup:"¿Cuál es el colmo de un cocinero?", punch:"Que se le queme el agua."},
+  {t:"comida", a:8, setup:"Camarero, tráigame lo mismo que a ese señor.", punch:"Imposible, lo necesita él."},
+  {t:"comida", a:13, setup:"¿Cuál es el colmo de un panadero?", punch:"Quedarse sin blanca."},
+  {t:"comida", a:13, setup:"Camarero, ¿tienen ancas de rana? — Sí, señor.", punch:"Pues póngase a saltar y tráigame una cerveza."},
+
+  // ===== DEPORTES =====
+  {t:"deportes", a:4, setup:"¿Por qué el balón está siempre triste?", punch:"Porque todo el mundo le da patadas."},
+  {t:"deportes", a:8, setup:"¿Qué hace un portero cuando se le cae el techo encima?", punch:"Pararlo."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un nadador?", punch:"Ahogarse en un vaso de agua."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un boxeador?", punch:"Que le peguen un susto."},
+  {t:"deportes", a:8, setup:"¿Cuál es el colmo de un futbolista?", punch:"Que su novia se llame Victoria y no consiga ninguna."},
+  {t:"deportes", a:8, setup:"¿Por qué los esqueletos no juegan al fútbol?", punch:"Porque les falta todo menos la defensa."},
+  {t:"deportes", a:13, setup:"¿Cuál es el colmo de un ciclista?", punch:"Que se le bajen los ánimos y las ruedas a la vez."},
+  {t:"deportes", a:13, setup:"¿Cuál es el colmo de un árbitro?", punch:"Que le piten en su propia boda."},
+
+  // ===== FAMILIA =====
+  {t:"familia", a:4, setup:"Mamá, mamá, ¿puedo salir a jugar? — ¿Con esos zapatos?", punch:"No, con los niños."},
+  {t:"familia", a:4, setup:"Papá, papá, ¿los peces se bañan?", punch:"No, hijo, ya están en el agua."},
+  {t:"familia", a:4, setup:"Mamá, mamá, ¿puedo rebañar el bol?", punch:"Primero tira de la cadena."},
+  {t:"familia", a:8, setup:"Mamá, mamá, en el colegio me llaman despistado.", punch:"Niño, vete, que vives en la casa de al lado."},
+  {t:"familia", a:8, setup:"Mamá, mamá, en el colegio me llaman cabezón.", punch:"Tú no les hagas caso. Anda, ve a comprar melones y tráelos en la gorra."},
+  {t:"familia", a:8, setup:"Papá, papá, ¿puedo ver la tele?", punch:"Sí, hijo, pero no la enciendas."},
+  {t:"familia", a:8, setup:"¿Qué le dice un abuelo a otro abuelo?", punch:"Nos vemos en el banco."},
+  {t:"familia", a:13, setup:"Mamá, mamá, no quiero ir a Australia.", punch:"Calla y sigue nadando."},
+  {t:"familia", a:18, setup:"¿Por qué los matrimonios discuten tan poco en el coche?", punch:"Porque el que conduce no puede escapar y el otro tampoco."},
+  {t:"familia", a:18, setup:"Mi mujer me dijo que me fuera a donde nadie me conociera.", punch:"Llevo dos horas en el gimnasio."},
+
+  // ===== TECNOLOGÍA =====
+  {t:"tecnologia", a:8, setup:"¿Por qué los pájaros no usan Facebook?", punch:"Porque ya tienen Twitter."},
+  {t:"tecnologia", a:8, setup:"¿Qué le dice un ordenador a otro ordenador?", punch:"Nos vemos en la red."},
+  {t:"tecnologia", a:8, setup:"¿Por qué el móvil fue al médico?", punch:"Porque tenía un virus."},
+  {t:"tecnologia", a:13, setup:"¿Cuál es el colmo de un informático?", punch:"Quedarse colgado delante de una ventana."},
+  {t:"tecnologia", a:13, setup:"¿Por qué la impresora está siempre de mal humor?", punch:"Porque siempre le dan papeles secundarios."},
+  {t:"tecnologia", a:13, setup:"¿Cómo se queda un informático cuando le quitan el teclado?", punch:"Sin palabras."},
+  {t:"tecnologia", a:18, setup:"¿Cuántos informáticos hacen falta para cambiar una bombilla?", punch:"Ninguno, eso es un problema de hardware."},
+
+  // ===== PIRATAS =====
+  {t:"piratas", a:4, setup:"¿Cuál es la letra favorita de los piratas?", punch:"Ellos dicen que la 'r', pero su amor es el mar."},
+  {t:"piratas", a:8, setup:"¿Por qué los piratas no aprenden nunca el abecedario?", punch:"Porque se pasan años perdidos en la 'c'."},
+  {t:"piratas", a:8, setup:"¿Qué hace un pirata delante del ordenador?", punch:"Navegar."},
+  {t:"piratas", a:8, setup:"¿Cómo se llama un pirata sin un ojo?", punch:"Pirata, porque sin un ojo se ve igual de mal."},
+  {t:"piratas", a:8, setup:"¿Cuál es el colmo de un pirata?", punch:"Tener un corazón de oro y no poder enterrarlo."},
+  {t:"piratas", a:13, setup:"¿Qué le dice un pirata a su loro cuando se enfada?", punch:"Repite eso y te mando a cubierta."},
+
+  // ===== MÚSICA =====
+  {t:"musica", a:4, setup:"¿Qué le dice un tambor a otro tambor?", punch:"No me des más golpes."},
+  {t:"musica", a:8, setup:"¿Por qué el piano no puede abrir la puerta?", punch:"Porque se ha dejado las llaves dentro."},
+  {t:"musica", a:8, setup:"¿Qué le dice una guitarra a otra guitarra?", punch:"Qué tensa te veo, afloja las cuerdas."},
+  {t:"musica", a:8, setup:"¿Cuál es el colmo de un músico?", punch:"Que su mujer se llame Armonía y no se lleven bien."},
+  {t:"musica", a:13, setup:"¿Por qué el violín siempre llega tarde?", punch:"Porque va a su ritmo."},
+  {t:"musica", a:13, setup:"¿Cuál es el colmo de un cantante?", punch:"Que le den la nota y no sepa dónde ponerla."},
+
+  // ===== SUPERHÉROES =====
+  {t:"superheroes", a:4, setup:"¿Cuál es el superhéroe más tranquilo?", punch:"El hombre invisible, porque nadie lo molesta."},
+  {t:"superheroes", a:8, setup:"¿Cuál es el colmo de un superhéroe?", punch:"Tener miedo a las alturas."},
+  {t:"superheroes", a:8, setup:"¿Por qué el hombre invisible no va al cine?", punch:"Porque nadie le guarda el sitio."},
+  {t:"superheroes", a:13, setup:"¿Cuál es el superpoder más inútil del mundo?", punch:"Adivinar lo que pasó ayer."},
+
+  // ===== VIAJES =====
+  {t:"viajes", a:4, setup:"¿Qué le dice un semáforo a otro semáforo?", punch:"No me mires, que me estoy cambiando."},
+  {t:"viajes", a:4, setup:"¿Qué le dice una carretera a otra carretera?", punch:"Nos vemos en el cruce."},
+  {t:"viajes", a:8, setup:"¿Cuál es el colmo de un piloto?", punch:"Tener miedo a volar."},
+  {t:"viajes", a:8, setup:"¿Cuál es el colmo de un taxista?", punch:"Perder el norte."},
+  {t:"viajes", a:8, setup:"¿Qué le dice una maleta a otra maleta?", punch:"Yo ya no doy más de mí."},
+  {t:"viajes", a:13, setup:"¿Cuál es el colmo de un marinero?", punch:"Navegar en un mar de dudas."},
+  {t:"viajes", a:13, setup:"¿Qué es lo primero que hay que hacer si te pierdes en el desierto?", punch:"Dejar de andar, que cansa mucho perderse corriendo."},
+
+  // ===== SE ABRE EL TELÓN =====
+  {t:"telon", a:4, setup:"Se abre el telón y se ve a un pollo tomando el sol. ¿Cómo se llama la película?", punch:"Pollo asado."},
+  {t:"telon", a:4, setup:"Se abre el telón y se ve a un gato tocando el piano. ¿Cómo se llama la película?", punch:"El gato con notas."},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un pez con corbata. ¿Cómo se llama la película?", punch:"El pez gordo."},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve un cubo de agua derramado. ¿Cómo se llama la película?", punch:"Agua pasada."},
+  {t:"telon", a:8, setup:"Se abre el telón y se ve a un señor con una maceta en la cabeza. ¿Cómo se llama la película?", punch:"La planta baja."},
+  {t:"telon", a:8, setup:"Se abre el telón y se ven dos relojes discutiendo. ¿Cómo se llama la película?", punch:"Cuestión de tiempo."},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve a mucha gente sin pelo. ¿Cómo se llama la película?", punch:"Calvos sin fronteras."},
+  {t:"telon", a:13, setup:"Se abre el telón y se ve una bombilla fundida. ¿Cómo se llama la película?", punch:"Se nos fue la luz."},
+
+  // ===== OTROS =====
+  {t:"otros", a:4, setup:"¿Qué le dice un techo a otro techo?", punch:"Techo de menos."},
+  {t:"otros", a:4, setup:"¿Qué le dice una pared a otra pared?", punch:"Nos vemos en la esquina."},
+  {t:"otros", a:4, setup:"¿Qué le dice un cero a un ocho?", punch:"Bonito cinturón."},
+  {t:"otros", a:8, setup:"¿Qué le dice un árbol a otro árbol?", punch:"Nos han dejado plantados."},
+  {t:"otros", a:8, setup:"¿Cuál es el colmo de un jardinero?", punch:"Que su novia se llame Rosa y lo deje plantado."},
   {t:"otros", a:8, setup:"¿Cuál es el colmo de un electricista?", punch:"Que su mujer se llame Luz y sus hijos le sigan la corriente."},
-  {t:"otros", a:8, setup:"¿Qué hace un libro en la playa?", punch:"Toma el sol entre líneas."},
-  {t:"otros", a:8, setup:"¿Qué le dice un semáforo a otro semáforo?", punch:"No me mires que me estoy cambiando."},
-  {t:"otros", a:8, setup:"¿Qué le dice un reloj a otro reloj?", punch:"Ya nos dieron las mismas horas de siempre."},
-  {t:"otros", a:13, setup:"¿Cuál es el colmo de un calvo?", punch:"Que le tomen el pelo."},
-  {t:"otros", a:13, setup:"¿Qué le dice una pared a otra pared?", punch:"Nos vemos en la esquina."},
-  {t:"otros", a:13, setup:"¿Cuál es el colmo de un sastre?", punch:"Que le quede grande el trabajo."},
-  {t:"otros", a:13, setup:"Mi vecino toca la batería a las tres de la mañana.", punch:"Yo le respondo con la aspiradora a las seis."},
-  {t:"otros", a:13, setup:"¿Qué hace un espejo cuando está triste?", punch:"Refleja exactamente lo que siente."},
-  {t:"otros", a:18, setup:"Dicen que el dinero no da la felicidad.", punch:"Pero permite elegir la forma de estar triste."},
-  {t:"otros", a:18, setup:"Ayer llegué puntual a una cita.", punch:"Tuve que esperar tanto que se me quitaron las ganas de volver a intentarlo."},
-  {t:"otros", a:18, setup:"Mi terapeuta dice que hablo demasiado de mí.", punch:"Le dije que eso era justo lo que me preocupaba de mí."},
-  {t:"otros", a:18, setup:"Dicen que la paciencia es una virtud.", punch:"Llevo años esperando a que se me note."}
+  {t:"otros", a:8, setup:"¿Cuál es el colmo de un sastre?", punch:"Que su hijo le salga de botones."},
+  {t:"otros", a:8, setup:"Doctor, doctor, me duele aquí, aquí y aquí.", punch:"Usted lo que tiene es el dedo roto."},
+  {t:"otros", a:8, setup:"Doctor, doctor, tengo la sensación de que nadie me escucha.", punch:"¿Siguiente?"},
+  {t:"otros", a:8, setup:"¿Cuál es el colmo de un astronauta?", punch:"Tener siempre la cabeza en la luna."},
+  {t:"otros", a:8, setup:"¿Cuál es el colmo de un calvo?", punch:"Que le tomen el pelo."},
+  {t:"otros", a:13, setup:"¿Cuál es el colmo de un bombero?", punch:"Que su mujer se llame Candela y se apague la llama."},
+  {t:"otros", a:13, setup:"Doctor, doctor, me he tragado un hueso. — ¿Se ha atragantado?", punch:"No, pero sigo sin perro."},
+  {t:"otros", a:13, setup:"¿Cuál es el colmo de un barbero?", punch:"Que le corten el rollo."},
+  {t:"otros", a:18, setup:"¿Cuál es el colmo de un banquero?", punch:"Perder el interés por su mujer."},
+  {t:"otros", a:18, setup:"Mi jefe me dijo que me tomara el día libre.", punch:"Le dije que no podía, que tenía mucho trabajo. Y es verdad: tenía que buscar otro."},
+  {t:"otros", a:18, setup:"¿Cuál es la diferencia entre un optimista y un pesimista?", punch:"El pesimista dice que peor no puede ir. El optimista dice que sí."}
 ];
 
 const AGE_GROUPS = [
@@ -1225,7 +684,6 @@ const CATS = [
   {key:"familia", label:"Familia", icon:"👪"},
   {key:"tecnologia", label:"Tecnología", icon:"💻"},
   {key:"piratas", label:"Piratas", icon:"🏴‍☠️"},
-  {key:"ciencia", label:"Ciencia", icon:"🔬"},
   {key:"musica", label:"Música", icon:"🎵"},
   {key:"superheroes", label:"Superhéroes", icon:"🦸"},
   {key:"viajes", label:"Viajes", icon:"✈️"},
@@ -1581,7 +1039,10 @@ function renderJoke(){
   const card = document.getElementById('joke-card');
   const favBtn = document.getElementById('fav-btn');
   if(!state.current){
-    card.innerHTML = `<p class="empty-msg">No hay chistes para esta combinación todavía. Prueba otra categoría o edad.</p>`;
+    const vacio = allJokes().length === 0;
+    card.innerHTML = vacio
+      ? `<p class="empty-msg">Todavía no hay chistes. Usa "Agregar mi propio chiste" o "Pegar muchos de golpe" para empezar.</p>`
+      : `<p class="empty-msg">No hay chistes para esta combinación todavía. Prueba otra categoría o edad.</p>`;
     favBtn.style.visibility = 'hidden';
     return;
   }
@@ -1733,6 +1194,13 @@ function populateFormSelects(){
     opt.textContent = g.label + " años (" + g.desc + ")";
     ageSel.appendChild(opt);
   });
+
+  // mismos desplegables para la importación en bloque
+  const bCat = document.getElementById('b-cat');
+  bCat.innerHTML = catSel.innerHTML;
+  const bAge = document.getElementById('b-age');
+  bAge.innerHTML = ageSel.innerHTML;
+  bAge.value = '8';
 }
 
 async function loadCustom(){
@@ -1791,6 +1259,96 @@ function resetForm(){
   document.getElementById('form-error').classList.remove('show');
   document.getElementById('add-form').classList.remove('open');
 }
+
+/* ===== Enviar chiste al creador =====
+   CAMBIA AQUÍ TU CORREO Y NADA MÁS: */
+const CORREO_CREADOR = "TUCORREO@ejemplo.com";
+
+const sendForm = document.getElementById('send-form');
+document.getElementById('send-btn').onclick = ()=>{ sendForm.classList.toggle('open'); };
+document.getElementById('s-cancel').onclick = ()=>{
+  document.getElementById('s-setup').value = "";
+  document.getElementById('s-punch').value = "";
+  document.getElementById('send-error').classList.remove('show');
+  sendForm.classList.remove('open');
+};
+document.getElementById('s-send').onclick = ()=>{
+  const setup = document.getElementById('s-setup').value.trim();
+  const punch = document.getElementById('s-punch').value.trim();
+  if(!setup || !punch){
+    document.getElementById('send-error').classList.add('show');
+    return;
+  }
+  document.getElementById('send-error').classList.remove('show');
+  const asunto = 'Chiste para Chistedades';
+  const cuerpo = setup + '\n\n' + punch + '\n\n---\nEnviado desde Chistedades';
+  window.location.href = 'mailto:' + CORREO_CREADOR
+    + '?subject=' + encodeURIComponent(asunto)
+    + '&body=' + encodeURIComponent(cuerpo);
+};
+
+document.getElementById('export-btn').onclick = ()=>{
+  const out = document.getElementById('export-out');
+  if(state.custom.length === 0){
+    alert('Todavía no has añadido ningún chiste.');
+    return;
+  }
+  // Mismo formato que acepta la importación: categoría, edad, pregunta | remate
+  const lineas = state.custom.map(j => j.t + ' ;; ' + j.a + ' ;; ' + j.setup + ' | ' + j.punch);
+  out.value = lineas.join('\n');
+  out.style.display = 'block';
+  out.select();
+  try{
+    document.execCommand('copy');
+    alert('Copiados ' + state.custom.length + ' chistes al portapapeles.');
+  }catch(e){
+    alert('Selecciona el texto y cópialo a mano.');
+  }
+};
+
+const bulkForm = document.getElementById('bulk-form');
+
+document.getElementById('bulk-toggle-btn').onclick = ()=>{
+  bulkForm.classList.toggle('open');
+};
+
+document.getElementById('b-cancel').onclick = ()=>{
+  document.getElementById('b-text').value = "";
+  document.getElementById('bulk-error').classList.remove('show');
+  bulkForm.classList.remove('open');
+};
+
+document.getElementById('b-save').onclick = ()=>{
+  const texto = document.getElementById('b-text').value;
+  const t = document.getElementById('b-cat').value;
+  const a = parseInt(document.getElementById('b-age').value, 10);
+  const err = document.getElementById('bulk-error');
+
+  const nuevos = [];
+  texto.split(/\n+/).forEach(linea=>{
+    const partes = linea.split('|');
+    if(partes.length < 2) return;
+    const setup = partes[0].trim();
+    const punch = partes.slice(1).join('|').trim();
+    if(!setup || !punch) return;
+    const clave = t + "|" + a + "|" + setup;
+    if(state.custom.some(c => jokeKey(c) === clave)) return;
+    nuevos.push({t, a, setup, punch});
+  });
+
+  if(nuevos.length === 0){ err.classList.add('show'); return; }
+  err.classList.remove('show');
+
+  nuevos.forEach(j => state.custom.push(j));
+  saveCustom();
+  renderMine();
+  pickJoke();
+  renderJoke();
+
+  document.getElementById('b-text').value = "";
+  bulkForm.classList.remove('open');
+  alert('Importados ' + nuevos.length + ' chistes.');
+};
 
 const addToggleBtn = document.getElementById('add-toggle-btn');
 const addForm = document.getElementById('add-form');
